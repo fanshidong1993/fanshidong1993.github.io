@@ -1,40 +1,421 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Your awesome title</title>
-    <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+    <title>海岸牧场</title>
+    <description>一个码农呕心沥血的东西。 需要交流可以email我。
 </description>
     <link>http://example.com/</link>
     <atom:link href="http://example.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 05 Sep 2016 17:38:42 +0800</pubDate>
-    <lastBuildDate>Mon, 05 Sep 2016 17:38:42 +0800</lastBuildDate>
+    <pubDate>Mon, 05 Sep 2016 18:49:01 +0800</pubDate>
+    <lastBuildDate>Mon, 05 Sep 2016 18:49:01 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
-        <title>Welcome to Jekyll!</title>
-        <description>&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+        <title>一个基于MVP的Android标准化框架的制作过程</title>
+        <description>&lt;h1 id=&quot;mvpandroid&quot;&gt;一个基于MVP的Android标准化框架的制作过程&lt;/h1&gt;
+&lt;h2 id=&quot;mvp&quot;&gt;MVP模式&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt; &lt;strong&gt;MVP&lt;/strong&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt; 模型，一切耗时的，复杂的操作（网络请求，算法等），都在这里进行。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt; 视图，可以认为是UI，是activity而不是XML，它除了展现画面给用户一位，还是要监听用户操作，是交互。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt; 顾名思义，是这个模式的&lt;strong&gt;主持人&lt;/strong&gt;，它是Model和View交流的中枢。 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt; 互相不知道彼此的动作，所以在开发，测试的时候可以并行，加快开发测试的速度。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt; 定义了View，Model的各种行为。
+发起一个动作的过程
+&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;–&amp;gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;–&amp;gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;–&amp;gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;–&amp;gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;监听到事件，调用起&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;相关的方法，该方法调用起&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;相关的方法。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;处理完事件后，把结果返回给&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;再控制&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;改变UI界面，完成交互。
+这里的方法 均用&lt;code class=&quot;highlighter-rouge&quot;&gt;Interface&lt;/code&gt;来实现， &lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt; 均实现相关的&lt;code class=&quot;highlighter-rouge&quot;&gt;Interface&lt;/code&gt;来达到目的。
+这就要求，在实现&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;，&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;之前就要定义好他们所有的行为。
+接下来 实现一个简单的例子：
+先实现一个&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;即&lt;code class=&quot;highlighter-rouge&quot;&gt;Activity&lt;/code&gt;
+我们定义这个&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;的几个行为。&lt;/p&gt;
 
-&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public interface DemoViewInterface {
+    /*
+    * 用Toast展示一段文字并显示他的长度
+    * */
+    void showToast(int length);
+    /*
+    * 用Dialog展示一段文字并显示它的长度
+    * */
+    void showDialog(int length);
+    /*
+    * 展示倒计时(演示耗时操作)
+    * */
+    void showCountDown(int count);
 
-&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+    /**
+     * 展示网络请求得到的数据
+     * @param msg 网络请求抓回来的数据
+     */
+    void showMessage(String msg);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;接下来 在&lt;code class=&quot;highlighter-rouge&quot;&gt;Activity&lt;/code&gt;中实现这个接口。
+首先实现&lt;code class=&quot;highlighter-rouge&quot;&gt;XML&lt;/code&gt;布局&lt;/p&gt;
 
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&amp;gt;
+&amp;lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:orientation=&quot;vertical&quot; android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;&amp;gt;
 
-&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
+    &amp;lt;EditText
+        android:id=&quot;@+id/et_input&quot;
+        android:hint=&quot;@string/hint&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+    &amp;lt;LinearLayout
+        android:orientation=&quot;horizontal&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;wrap_content&quot;&amp;gt;
+        &amp;lt;Button
+            android:id=&quot;@+id/btn_showtoast&quot;
+            android:text=&quot;@string/showtoast&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+        &amp;lt;Button
+            android:id=&quot;@+id/btn_showdialog&quot;
+            android:text=&quot;@string/showdialog&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+    &amp;lt;/LinearLayout&amp;gt;
+    &amp;lt;LinearLayout
+        android:orientation=&quot;horizontal&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;wrap_content&quot;&amp;gt;
+        &amp;lt;TextView
+            android:id=&quot;@+id/tv_countdown_number&quot;
+            android:layout_gravity=&quot;center_vertical&quot;
+            android:text=&quot;10&quot;
+            android:textSize=&quot;30dp&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+        &amp;lt;Button
+            android:id=&quot;@+id/btn_countdown_start&quot;
+            android:text=&quot;@string/startcountdown&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+        &amp;lt;Button
+            android:id=&quot;@+id/btn_countdown_reset&quot;
+            android:text=&quot;@string/reset&quot;
+            android:layout_width=&quot;wrap_content&quot;
+            android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+    &amp;lt;/LinearLayout&amp;gt;
+    &amp;lt;Button
+        android:id=&quot;@+id/btn_request&quot;
+        android:text=&quot;@string/requert&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+    &amp;lt;TextView
+        android:id=&quot;@+id/tv_result&quot;
+        android:hint=&quot;@string/showresult&quot;
+        android:layout_width=&quot;wrap_content&quot;
+        android:layout_height=&quot;wrap_content&quot; /&amp;gt;
+&amp;lt;/LinearLayout&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;预览时这样子的：
+&lt;img src=&quot;http://ww3.sinaimg.cn/mw690/ad4f5c29gw1f7iwim7inpj20t6101aco.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在&lt;code class=&quot;highlighter-rouge&quot;&gt;Activity&lt;/code&gt;中&lt;code class=&quot;highlighter-rouge&quot;&gt;Bind&lt;/code&gt;所有控件，添加监听，实现接口后，我们就完成了这个&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;的第一步&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public class DemoViewActivity extends Activity implements DemoViewInterface, View.OnClickListener {
+
+    private Button btn_showToast,btn_showDialog,btn_countDownStart,btn_countDownReset,btn_request;
+    private TextView tv_countDown_number,tv_showResult;
+    private EditText et_input;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_demoview);
+        bindView();
+        bindEvent();
+    }
+
+    private void bindEvent() {
+        btn_request.setOnClickListener(this);
+        btn_countDownReset.setOnClickListener(this);
+        btn_countDownStart.setOnClickListener(this);
+        btn_showDialog.setOnClickListener(this);
+        btn_showToast.setOnClickListener(this);
+    }
+
+    private void bindView() {
+        et_input = (EditText) findViewById(R.id.et_input);
+        btn_showToast = (Button) findViewById(R.id.btn_showtoast);
+        btn_showDialog = (Button) findViewById(R.id.btn_showdialog);
+        tv_countDown_number = (TextView) findViewById(R.id.tv_countdown_number);
+        btn_countDownStart = (Button) findViewById(R.id.btn_countdown_start);
+        btn_countDownReset = (Button) findViewById(R.id.btn_countdown_reset);
+        btn_request = (Button) findViewById(R.id.btn_request);
+        tv_showResult = (TextView) findViewById(R.id.tv_result);
+    }
+
+
+    @Override
+    public void showToast(String str, int length) {
+        String content = str + &quot;&amp;amp;&quot; + length;
+        Toast.makeText(this,content,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showDialog(String str, int length) {
+        Dialog dialog = new Dialog(this);
+        String content = str + &quot;&amp;amp;&quot; + length;
+        TextView tv_content = new TextView(this);
+        tv_content.setText(content);
+        dialog.setContentView(tv_content);
+        dialog.show();
+    }
+
+    @Override
+    public void showCountDown(int count) {
+        tv_countDown_number.setText(String.valueOf(count));
+    }
+
+    @Override
+    public void showMessage(String msg) {
+        tv_showResult.setText(msg);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        //ToDo 在每个case下实现presenter相应方法并调用
+        switch (id){
+            case R.id.btn_showtoast:
+                break;
+            case R.id.btn_showdialog:
+                break;
+            case R.id.btn_countdown_reset:
+                break;
+            case R.id.btn_countdown_start:
+                break;
+            case R.id.btn_request:
+                break;
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;接下来， 实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;一样，我们先定义它的所有行为。&lt;code class=&quot;highlighter-rouge&quot;&gt;View&lt;/code&gt;的行为是在监听到用户事件后让&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;调用的，而&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;则是让&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;在完成耗时操作或计算或网络请求的时候调用。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public interface DemoPresenterInterface {
+    /**
+     * 完成字符串长度的计算
+     * @param str 字符串
+     * @param length 字符串的长度
+     */
+    void completeStringCount(String str, int length);
+
+    /**
+     * 完成1秒的计数
+     * @param count 当前的计数
+     */
+    void completeCountDownASecend(int count);
+
+    /**
+     * 完成网络请求
+     * @param result 网络请求的结果
+     */
+    void completeRequest(String result);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Presenter的实现&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public class DemoPresenter implements DemoPresenterInterface {
+    /*
+    * 在View 已经实现了的接口
+    * */
+    private DemoViewInterface demoViewInterface;
+
+    // TODO: 实现DemoModel
+    private DemoModel demoModel;
+    /*
+    * 判断是用吐司还是弹窗显示的变量
+    * */
+    private Boolean isToast;
+
+    /**
+     * 构造函数
+     * @param demoViewInterface
+     */
+    DemoPresenter(DemoViewInterface demoViewInterface){
+        this.demoViewInterface = demoViewInterface;
+        isToast = true;//设置一个初始值
+    }
+    /*
+    * 以下是创建供View调用的方法,具体的实现,要完成Model后才可以操作
+    * */
+    public void clickShowToast(){
+        isToast = true;
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickShowDialog(){
+        isToast = false;
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickCountDownStart(){
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickCountDownRestart(){
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickRequest(){
+        // TODO: 实现model对应方法并调用
+    }
+    /*
+    * 以下是对DemoPresenterInterface的实现
+    * */
+    @Override
+    public void completeStringCount(String str, int length) {
+        if (isToast) demoViewInterface.showToast(str,length);
+        else demoViewInterface.showDialog(str,length);
+    }
+
+    @Override
+    public void completeCountDownASecend(int count) {
+        demoViewInterface.showCountDown(count);
+    }
+
+    @Override
+    public void completeRequest(String result) {
+        demoViewInterface.showMessage(result);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;最后，实现&lt;code class=&quot;highlighter-rouge&quot;&gt;Model&lt;/code&gt;，这里不需要定义行为，因为它是&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;私有成员变量，直接定义方法就可以让&lt;code class=&quot;highlighter-rouge&quot;&gt;Presenter&lt;/code&gt;调用。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public class DemoModel {
+
+    private final int MAX_COUNTER = 10;
+    private DemoPresenterInterface demoPresenterInterface;
+    private int counter;
+    public DemoModel(DemoPresenterInterface demoPresenterInterface){
+        this.demoPresenterInterface = demoPresenterInterface;
+        resetCounter();
+    }
+
+    private void resetCounter() {
+        counter = MAX_COUNTER;
+    }
+
+    public void calculationStringLength(String str){
+
+        demoPresenterInterface.completeStringCount(str,str.length());
+
+    }
+    /*
+    * 子线程不能直接操作UI线程,通过handler解决
+    * */
+    private final android.os.Handler handler = new android.os.Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            demoPresenterInterface.completeCountDownASecend(counter);
+            super.handleMessage(msg);
+        }
+    };
+    public void countDownASecond(){
+        //耗时操作, 开个线程
+        new Thread(){
+            @Override
+            public void run() {
+                while (counter &amp;gt; 0)
+                try {
+                    Thread.sleep(1000);
+                    counter --;
+                    handler.sendEmptyMessage(0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public void countDownReset(){
+        resetCounter();
+        demoPresenterInterface.completeCountDownASecend(counter);
+    }
+    public void request(){
+        //请求数据的URL
+        String URL = &quot;http://www.icityto.com/X_UserLogic/yesicity2015/nickname_Page/?Uid=yesicity2015&amp;amp;Field_YHID=559&amp;amp;Yesicity=1&amp;amp;Id=552&quot;;
+        JsonObjectRequest request = new JsonObjectRequest(URL, null,
+                new Response.Listener&amp;lt;JSONObject&amp;gt;() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        //请求成功回调
+                        demoPresenterInterface.completeRequest(jsonObject.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //请求失败回调
+                        demoPresenterInterface.completeRequest(volleyError.toString());
+                    }
+                });
+        RequestQueue.getmQueue().add(request);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;下一步就是把之前的&lt;code class=&quot;highlighter-rouge&quot;&gt;todo&lt;/code&gt;完成掉。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;DemoViewActivity&lt;/code&gt;中&lt;code class=&quot;highlighter-rouge&quot;&gt;onClick&lt;/code&gt;里的&lt;code class=&quot;highlighter-rouge&quot;&gt;todo&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;@Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.btn_showtoast:
+                demoPresenter.clickShowToast(et_input.getText().toString());
+                break;
+            case R.id.btn_showdialog:
+                demoPresenter.clickShowDialog(et_input.getText().toString());
+                break;
+            case R.id.btn_countdown_reset:
+                demoPresenter.clickCountDownRestart();
+                break;
+            case R.id.btn_countdown_start:
+                demoPresenter.clickCountDownStart();
+                break;
+            case R.id.btn_request:
+                demoPresenter.clickRequest();
+                break;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;DemoPresenter&lt;/code&gt;中的&lt;code class=&quot;highlighter-rouge&quot;&gt;todo&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	public void clickShowToast(String str){
+        isToast = true;
+        demoModel.calculationStringLength(str);
+    }
+    public void clickShowDialog(String str){
+        isToast = false;
+        demoModel.calculationStringLength(str);
+    }
+    public void clickCountDownStart(){
+        demoModel.countDownASecond();
+    }
+    public void clickCountDownRestart(){
+        demoModel.countDownReset();
+    }
+    public void clickRequest(){
+        demoModel.request();
+    }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;至此&lt;code class=&quot;highlighter-rouge&quot;&gt;MVP&lt;/code&gt;模式的基本实现完成&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 05 Sep 2016 17:38:22 +0800</pubDate>
-        <link>http://example.com/jekyll/update/2016/09/05/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">http://example.com/jekyll/update/2016/09/05/welcome-to-jekyll.html</guid>
+        <link>http://example.com/android/2016/09/05/%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EMVP%E7%9A%84Android%E6%A0%87%E5%87%86%E5%8C%96%E6%A1%86%E6%9E%B6%E7%9A%84%E5%88%B6%E4%BD%9C%E8%BF%87%E7%A8%8B.html</link>
+        <guid isPermaLink="true">http://example.com/android/2016/09/05/%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EMVP%E7%9A%84Android%E6%A0%87%E5%87%86%E5%8C%96%E6%A1%86%E6%9E%B6%E7%9A%84%E5%88%B6%E4%BD%9C%E8%BF%87%E7%A8%8B.html</guid>
         
         
-        <category>jekyll</category>
-        
-        <category>update</category>
+        <category>Android</category>
         
       </item>
     

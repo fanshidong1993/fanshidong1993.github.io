@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>一个基于MVP的Android标准化框架的制作过程</title>
+  <meta name="description" content="一个基于MVP的Android标准化框架的制作过程 MVP模式 Model View Presenter MVP Model 模型，一切耗时的，复杂的操作（网络请求，算法等），都在这里进行。 View 视图，可以认为是UI，是activity而不是XML，它除了展现画面给用户一位，还是要监听用户操作，是交互。 P...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://example.com/android/2016/09/05/%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EMVP%E7%9A%84Android%E6%A0%87%E5%87%86%E5%8C%96%E6%A1%86%E6%9E%B6%E7%9A%84%E5%88%B6%E4%BD%9C%E8%BF%87%E7%A8%8B.html">
+  <link rel="alternate" type="application/rss+xml" title="海岸牧场" href="http://example.com/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">海岸牧场</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">一个基于MVP的Android标准化框架的制作过程</h1>
+    <p class="post-meta"><time datetime="2016-09-05T17:38:22+08:00" itemprop="datePublished">Sep 5, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h1 id="mvpandroid">一个基于MVP的Android标准化框架的制作过程</h1>
+<h2 id="mvp">MVP模式</h2>
+<p><code class="highlighter-rouge">Model</code> <code class="highlighter-rouge">View</code> <code class="highlighter-rouge">Presenter</code> <strong>MVP</strong>
+<code class="highlighter-rouge">Model</code> 模型，一切耗时的，复杂的操作（网络请求，算法等），都在这里进行。
+<code class="highlighter-rouge">View</code> 视图，可以认为是UI，是activity而不是XML，它除了展现画面给用户一位，还是要监听用户操作，是交互。
+<code class="highlighter-rouge">Presenter</code> 顾名思义，是这个模式的<strong>主持人</strong>，它是Model和View交流的中枢。 
+<code class="highlighter-rouge">Model</code><code class="highlighter-rouge">View</code> 互相不知道彼此的动作，所以在开发，测试的时候可以并行，加快开发测试的速度。
+<code class="highlighter-rouge">Presenter</code> 定义了View，Model的各种行为。
+发起一个动作的过程
+<code class="highlighter-rouge">View</code>–&gt;<code class="highlighter-rouge">Presenter</code>–&gt;<code class="highlighter-rouge">Model</code>–&gt;<code class="highlighter-rouge">Presenter</code>–&gt;<code class="highlighter-rouge">View</code>
+<code class="highlighter-rouge">View</code>监听到事件，调用起<code class="highlighter-rouge">Presenter</code>相关的方法，该方法调用起<code class="highlighter-rouge">Model</code>相关的方法。
+<code class="highlighter-rouge">Model</code>处理完事件后，把结果返回给<code class="highlighter-rouge">Presenter</code>，<code class="highlighter-rouge">Presenter</code>再控制<code class="highlighter-rouge">View</code>改变UI界面，完成交互。
+这里的方法 均用<code class="highlighter-rouge">Interface</code>来实现， <code class="highlighter-rouge">View</code><code class="highlighter-rouge">Presenter</code><code class="highlighter-rouge">Model</code> 均实现相关的<code class="highlighter-rouge">Interface</code>来达到目的。
+这就要求，在实现<code class="highlighter-rouge">View</code>，<code class="highlighter-rouge">Model</code>之前就要定义好他们所有的行为。
+接下来 实现一个简单的例子：
+先实现一个<code class="highlighter-rouge">View</code>即<code class="highlighter-rouge">Activity</code>
+我们定义这个<code class="highlighter-rouge">View</code>的几个行为。</p>
+
+<pre><code class="language-android">public interface DemoViewInterface {
+    /*
+    * 用Toast展示一段文字并显示他的长度
+    * */
+    void showToast(int length);
+    /*
+    * 用Dialog展示一段文字并显示它的长度
+    * */
+    void showDialog(int length);
+    /*
+    * 展示倒计时(演示耗时操作)
+    * */
+    void showCountDown(int count);
+
+    /**
+     * 展示网络请求得到的数据
+     * @param msg 网络请求抓回来的数据
+     */
+    void showMessage(String msg);
+}
+</code></pre>
+<p>接下来 在<code class="highlighter-rouge">Activity</code>中实现这个接口。
+首先实现<code class="highlighter-rouge">XML</code>布局</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"&gt;
+
+    &lt;EditText
+        android:id="@+id/et_input"
+        android:hint="@string/hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" /&gt;
+    &lt;LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"&gt;
+        &lt;Button
+            android:id="@+id/btn_showtoast"
+            android:text="@string/showtoast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /&gt;
+        &lt;Button
+            android:id="@+id/btn_showdialog"
+            android:text="@string/showdialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /&gt;
+    &lt;/LinearLayout&gt;
+    &lt;LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"&gt;
+        &lt;TextView
+            android:id="@+id/tv_countdown_number"
+            android:layout_gravity="center_vertical"
+            android:text="10"
+            android:textSize="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /&gt;
+        &lt;Button
+            android:id="@+id/btn_countdown_start"
+            android:text="@string/startcountdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /&gt;
+        &lt;Button
+            android:id="@+id/btn_countdown_reset"
+            android:text="@string/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" /&gt;
+    &lt;/LinearLayout&gt;
+    &lt;Button
+        android:id="@+id/btn_request"
+        android:text="@string/requert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" /&gt;
+    &lt;TextView
+        android:id="@+id/tv_result"
+        android:hint="@string/showresult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" /&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+</div>
+<p>预览时这样子的：
+<img src="http://ww3.sinaimg.cn/mw690/ad4f5c29gw1f7iwim7inpj20t6101aco.jpg" alt="" /></p>
+
+<p>在<code class="highlighter-rouge">Activity</code>中<code class="highlighter-rouge">Bind</code>所有控件，添加监听，实现接口后，我们就完成了这个<code class="highlighter-rouge">View</code>的第一步</p>
+
+<pre><code class="language-android">public class DemoViewActivity extends Activity implements DemoViewInterface, View.OnClickListener {
+
+    private Button btn_showToast,btn_showDialog,btn_countDownStart,btn_countDownReset,btn_request;
+    private TextView tv_countDown_number,tv_showResult;
+    private EditText et_input;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_demoview);
+        bindView();
+        bindEvent();
+    }
+
+    private void bindEvent() {
+        btn_request.setOnClickListener(this);
+        btn_countDownReset.setOnClickListener(this);
+        btn_countDownStart.setOnClickListener(this);
+        btn_showDialog.setOnClickListener(this);
+        btn_showToast.setOnClickListener(this);
+    }
+
+    private void bindView() {
+        et_input = (EditText) findViewById(R.id.et_input);
+        btn_showToast = (Button) findViewById(R.id.btn_showtoast);
+        btn_showDialog = (Button) findViewById(R.id.btn_showdialog);
+        tv_countDown_number = (TextView) findViewById(R.id.tv_countdown_number);
+        btn_countDownStart = (Button) findViewById(R.id.btn_countdown_start);
+        btn_countDownReset = (Button) findViewById(R.id.btn_countdown_reset);
+        btn_request = (Button) findViewById(R.id.btn_request);
+        tv_showResult = (TextView) findViewById(R.id.tv_result);
+    }
+
+
+    @Override
+    public void showToast(String str, int length) {
+        String content = str + "&amp;" + length;
+        Toast.makeText(this,content,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showDialog(String str, int length) {
+        Dialog dialog = new Dialog(this);
+        String content = str + "&amp;" + length;
+        TextView tv_content = new TextView(this);
+        tv_content.setText(content);
+        dialog.setContentView(tv_content);
+        dialog.show();
+    }
+
+    @Override
+    public void showCountDown(int count) {
+        tv_countDown_number.setText(String.valueOf(count));
+    }
+
+    @Override
+    public void showMessage(String msg) {
+        tv_showResult.setText(msg);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        //ToDo 在每个case下实现presenter相应方法并调用
+        switch (id){
+            case R.id.btn_showtoast:
+                break;
+            case R.id.btn_showdialog:
+                break;
+            case R.id.btn_countdown_reset:
+                break;
+            case R.id.btn_countdown_start:
+                break;
+            case R.id.btn_request:
+                break;
+        }
+    }
+}
+</code></pre>
+<p>接下来， 实现<code class="highlighter-rouge">Presenter</code>和<code class="highlighter-rouge">View</code>一样，我们先定义它的所有行为。<code class="highlighter-rouge">View</code>的行为是在监听到用户事件后让<code class="highlighter-rouge">Presenter</code>调用的，而<code class="highlighter-rouge">Presenter</code>则是让<code class="highlighter-rouge">Model</code>在完成耗时操作或计算或网络请求的时候调用。</p>
+
+<pre><code class="language-android">public interface DemoPresenterInterface {
+    /**
+     * 完成字符串长度的计算
+     * @param str 字符串
+     * @param length 字符串的长度
+     */
+    void completeStringCount(String str, int length);
+
+    /**
+     * 完成1秒的计数
+     * @param count 当前的计数
+     */
+    void completeCountDownASecend(int count);
+
+    /**
+     * 完成网络请求
+     * @param result 网络请求的结果
+     */
+    void completeRequest(String result);
+}
+</code></pre>
+<p>Presenter的实现</p>
+
+<pre><code class="language-android">public class DemoPresenter implements DemoPresenterInterface {
+    /*
+    * 在View 已经实现了的接口
+    * */
+    private DemoViewInterface demoViewInterface;
+
+    // TODO: 实现DemoModel
+    private DemoModel demoModel;
+    /*
+    * 判断是用吐司还是弹窗显示的变量
+    * */
+    private Boolean isToast;
+
+    /**
+     * 构造函数
+     * @param demoViewInterface
+     */
+    DemoPresenter(DemoViewInterface demoViewInterface){
+        this.demoViewInterface = demoViewInterface;
+        isToast = true;//设置一个初始值
+    }
+    /*
+    * 以下是创建供View调用的方法,具体的实现,要完成Model后才可以操作
+    * */
+    public void clickShowToast(){
+        isToast = true;
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickShowDialog(){
+        isToast = false;
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickCountDownStart(){
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickCountDownRestart(){
+        // TODO: 实现model对应方法并调用
+    }
+    public void clickRequest(){
+        // TODO: 实现model对应方法并调用
+    }
+    /*
+    * 以下是对DemoPresenterInterface的实现
+    * */
+    @Override
+    public void completeStringCount(String str, int length) {
+        if (isToast) demoViewInterface.showToast(str,length);
+        else demoViewInterface.showDialog(str,length);
+    }
+
+    @Override
+    public void completeCountDownASecend(int count) {
+        demoViewInterface.showCountDown(count);
+    }
+
+    @Override
+    public void completeRequest(String result) {
+        demoViewInterface.showMessage(result);
+    }
+}
+</code></pre>
+<p>最后，实现<code class="highlighter-rouge">Model</code>，这里不需要定义行为，因为它是<code class="highlighter-rouge">Presenter</code>私有成员变量，直接定义方法就可以让<code class="highlighter-rouge">Presenter</code>调用。</p>
+
+<pre><code class="language-android">public class DemoModel {
+
+    private final int MAX_COUNTER = 10;
+    private DemoPresenterInterface demoPresenterInterface;
+    private int counter;
+    public DemoModel(DemoPresenterInterface demoPresenterInterface){
+        this.demoPresenterInterface = demoPresenterInterface;
+        resetCounter();
+    }
+
+    private void resetCounter() {
+        counter = MAX_COUNTER;
+    }
+
+    public void calculationStringLength(String str){
+
+        demoPresenterInterface.completeStringCount(str,str.length());
+
+    }
+    /*
+    * 子线程不能直接操作UI线程,通过handler解决
+    * */
+    private final android.os.Handler handler = new android.os.Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            demoPresenterInterface.completeCountDownASecend(counter);
+            super.handleMessage(msg);
+        }
+    };
+    public void countDownASecond(){
+        //耗时操作, 开个线程
+        new Thread(){
+            @Override
+            public void run() {
+                while (counter &gt; 0)
+                try {
+                    Thread.sleep(1000);
+                    counter --;
+                    handler.sendEmptyMessage(0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public void countDownReset(){
+        resetCounter();
+        demoPresenterInterface.completeCountDownASecend(counter);
+    }
+    public void request(){
+        //请求数据的URL
+        String URL = "http://www.icityto.com/X_UserLogic/yesicity2015/nickname_Page/?Uid=yesicity2015&amp;Field_YHID=559&amp;Yesicity=1&amp;Id=552";
+        JsonObjectRequest request = new JsonObjectRequest(URL, null,
+                new Response.Listener&lt;JSONObject&gt;() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        //请求成功回调
+                        demoPresenterInterface.completeRequest(jsonObject.toString());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //请求失败回调
+                        demoPresenterInterface.completeRequest(volleyError.toString());
+                    }
+                });
+        RequestQueue.getmQueue().add(request);
+    }
+}
+</code></pre>
+<p>下一步就是把之前的<code class="highlighter-rouge">todo</code>完成掉。</p>
+
+<p><strong><code class="highlighter-rouge">DemoViewActivity</code>中<code class="highlighter-rouge">onClick</code>里的<code class="highlighter-rouge">todo</code></strong></p>
+
+<pre><code class="language-android">@Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.btn_showtoast:
+                demoPresenter.clickShowToast(et_input.getText().toString());
+                break;
+            case R.id.btn_showdialog:
+                demoPresenter.clickShowDialog(et_input.getText().toString());
+                break;
+            case R.id.btn_countdown_reset:
+                demoPresenter.clickCountDownRestart();
+                break;
+            case R.id.btn_countdown_start:
+                demoPresenter.clickCountDownStart();
+                break;
+            case R.id.btn_request:
+                demoPresenter.clickRequest();
+                break;
+        }
+    }
+</code></pre>
+
+<p><strong><code class="highlighter-rouge">DemoPresenter</code>中的<code class="highlighter-rouge">todo</code></strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	public void clickShowToast(String str){
+        isToast = true;
+        demoModel.calculationStringLength(str);
+    }
+    public void clickShowDialog(String str){
+        isToast = false;
+        demoModel.calculationStringLength(str);
+    }
+    public void clickCountDownStart(){
+        demoModel.countDownASecond();
+    }
+    public void clickCountDownRestart(){
+        demoModel.countDownReset();
+    }
+    public void clickRequest(){
+        demoModel.request();
+    }
+</code></pre>
+</div>
+<p>至此<code class="highlighter-rouge">MVP</code>模式的基本实现完成</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">海岸牧场</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>海岸牧场</li>
+          <li><a href="mailto:fanshidong_1993@icloud.com">fanshidong_1993@icloud.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/fanshidong1993"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">fanshidong1993</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>一个码农呕心沥血的东西。 需要交流可以email我。
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
