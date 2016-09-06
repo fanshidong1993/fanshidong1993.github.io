@@ -6,8 +6,8 @@
 </description>
     <link>http://example.com/</link>
     <atom:link href="http://example.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 05 Sep 2016 18:55:04 +0800</pubDate>
-    <lastBuildDate>Mon, 05 Sep 2016 18:55:04 +0800</lastBuildDate>
+    <pubDate>Tue, 06 Sep 2016 10:40:01 +0800</pubDate>
+    <lastBuildDate>Tue, 06 Sep 2016 10:40:01 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
     
       <item>
@@ -407,7 +407,8 @@
     }
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;p&gt;至此&lt;code class=&quot;highlighter-rouge&quot;&gt;MVP&lt;/code&gt;模式的基本实现完成&lt;/p&gt;
+&lt;p&gt;至此&lt;code class=&quot;highlighter-rouge&quot;&gt;MVP&lt;/code&gt;模式的基本实现完成
+&lt;a href=&quot;https://github.com/fanshidong1993/StandardizationFramework&quot;&gt;源码&lt;/a&gt;&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 05 Sep 2016 17:38:22 +0800</pubDate>
@@ -420,4 +421,5 @@
       </item>
     
   </channel>
+  
 </rss>

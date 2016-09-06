@@ -406,4 +406,5 @@ public class DemoModel {
     }
 ```
 至此`MVP`模式的基本实现完成
+[源码](https://github.com/fanshidong1993/StandardizationFramework)
 
