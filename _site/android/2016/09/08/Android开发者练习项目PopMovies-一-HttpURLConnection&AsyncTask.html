@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Android开发者练习项目PopMovies（一）HttpURLConnection&amp;AsyncTask</title>
+  <meta name="description" content="前言">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://example.com/android/2016/09/08/Android%E5%BC%80%E5%8F%91%E8%80%85%E7%BB%83%E4%B9%A0%E9%A1%B9%E7%9B%AEPopMovies-%E4%B8%80-HttpURLConnection&AsyncTask.html">
+  <link rel="alternate" type="application/rss+xml" title="海岸牧场" href="http://example.com/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">海岸牧场</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">关于本站</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Android开发者练习项目PopMovies（一）HttpURLConnection&amp;AsyncTask</h1>
+    <p class="post-meta"><time datetime="2016-09-08T10:09:56+08:00" itemprop="datePublished">Sep 8, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h1 id="section">前言</h1>
+
+<p>最近参加了一个Google官方的远程教育课程，在课程中要完成一些项目。借此，我写成Blog，在自己巩固已经掌握的API的同时，希望分享给大家。</p>
+
+<h1 id="asynctask">AsyncTask</h1>
+
+<p>这是一个轻量级的异步任务类。与Handler的作用一样。
+优点：使用方便，结构简单
+缺点：只能处理单个异步任务，在多个异步任务并发的处理上不如Handler</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// URL 是doInBackground的入参类型
+// Integer 是onProgressUpdate的入参类型
+// Long 是doInBackground 的出参类型 已经 onPostExecute的入参类型
+// 当然， 这些类型都是你自定义的， 这里只是个例子，如果为空，则设为Void
+private class DownloadFilesTask extends AsyncTask&lt;URL, Integer, Long&gt; {
+		// doInBackground 在子线程中进行 
+		// 这里还有一个 方法 叫void onPreExecute () 是在doInBackground前被执行的一些初始化的
+		// 一些初始化的工作可以在 onPreExecute 进行。
+     protected Long doInBackground(URL... urls) {
+         int count = urls.length;
+         long totalSize = 0;
+         for (int i = 0; i &lt; count; i++) {
+             totalSize += Downloader.downloadFile(urls[i]);
+             // 这个publishProgress 会调用onProgressUpdate，
+             // 把你计算的进度结果告诉onProgressUpdate
+             publishProgress((int) ((i / (float) count) * 100));
+             // Escape early if cancel() is called
+             // AsyncTask.cancel() 可以取消任务。
+             // 所以当任务有可能被取消的时候， 就需要做一些处理，防止出错。
+             if (isCancelled()) break;
+         }
+         return totalSize;
+     }
+		// onProgressUpdate 在UI线程的方法。告诉你 任务进行到百分之几了
+		// 在UI上可以告诉用户这个百分比
+     protected void onProgressUpdate(Integer... progress) {
+         setProgressPercent(progress[0]);
+     }
+		// onPostExecute 同样在UI线程的方法 任务完成后的一些处理
+		// result 就是网络加载的结果了
+     protected void onPostExecute(Long result) {
+         showDialog("Downloaded " + result + " bytes");
+     }
+     // 顺带提一句 onPreExecute 也是在UI线程中的
+ }
+</code></pre>
+</div>
+<p>开始任务 就一句话</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//这里的execute 参数就是 doInBackground的入参，最终会转化成数组，所以，放几个都可以。
+new DownloadFilesTask().execute(url1, url2);
+</code></pre>
+</div>
+<p><strong>注:上诉代码来自developer.android.com中文注释为博主添加</strong></p>
+
+<h1 id="httpurlconnection">HttpURLConnection</h1>
+
+<p><code class="highlighter-rouge">对于上手就是OKHttp，Volley，等网络请求框架的人来说（没错就是我）HttpURLConnection 确实需要学习一下。哈哈！如果你已经很熟了，翻篇吧。</code></p>
+
+<p>写来写去，发现CSDN有个大牛，写的特别清楚特别全面就贴个<a href="http://blog.csdn.net/woxueliuyun/article/details/43267365">链接</a>吧，膜拜膜拜。</p>
+
+<p>说到了网络请求， 这里就提一下我使用的 图片加载管理吧–&gt;Picasso。
+如果你用 Androidstudio 的话 添加和使用都很方便。
+首先你在build.gradle(Module:app)中 添加Picasso依赖</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//简单粗暴一看就会
+android {
+    ...
+    repositories {
+        mavenCentral()
+    }
+}
+dependencies {
+    ...
+    compile 'com.squareup.picasso:picasso:2.5.2'
+}
+</code></pre>
+</div>
+
+<p>然后就可以食用Picasso啦。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//最粗暴的用法
+Picasso.with(context).load(url).into(imageview);
+</code></pre>
+</div>
+<p>想看 Picasso 详细点的， 具体点的， 丰富的的，<a href="http://square.github.io/picasso/">戳这里</a><a href="http://square.github.io/picasso/">http://square.github.io/picasso/</a></p>
+
+<h1 id="section-1">数据来源</h1>
+
+<p>说了这么多，异步任务，网络请求，图片加载缓存的控件，我们的数据从那里拿呢
+www.themoviedb.org 由这个TA提供，你需要注册一个帐户，然后添加一个APP，并填写一下信息（反正我是瞎写的）然后就会得到一个API_KEY，这是你请求数据的关键哟。
+之后你想要啥数据<a href="http://docs.themoviedb.apiary.io/#/">http://docs.themoviedb.apiary.io/#/</a>参见API文档吧。</p>
+
+<h1 id="section-2">结束</h1>
+
+<p>网络请求，已经接口相关的准备工作完成。</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">海岸牧场</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>海岸牧场</li>
+          <li><a href="mailto:fanshidong_1993@icloud.com">fanshidong_1993@icloud.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/fanshidong1993"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">fanshidong1993</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>一个码农呕心沥血的东西。 需要交流可以email我。
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
