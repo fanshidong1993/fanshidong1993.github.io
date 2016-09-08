@@ -84,7 +84,7 @@ dependencies {
 }
 ```
 
-然后就可以食用Picasso啦。
+然后就可以使用Picasso啦。
 
 ```
 //最粗暴的用法
