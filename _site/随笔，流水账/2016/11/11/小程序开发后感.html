@@ -6,11 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>海岸牧场</title>
-  <meta name="description" content="一个码农呕心沥血的东西。 需要交流可以email我。">
+  <title>小程序开发后感</title>
+  <meta name="description" content="前几天注册了一个小程序的帐号，玩了一把，选择吐槽一波，顺便往我这个几百年不更新的个人网站注水。">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://example.com/">
+  <link rel="canonical" href="http://example.com/%E9%9A%8F%E7%AC%94%EF%BC%8C%E6%B5%81%E6%B0%B4%E8%B4%A6/2016/11/11/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E5%90%8E%E6%84%9F.html">
   <link rel="alternate" type="application/rss+xml" title="海岸牧场" href="http://example.com/feed.xml">
 </head>
 
@@ -54,41 +54,56 @@
 
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        <div class="home">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <h1 class="page-heading">目录</h1>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">小程序开发后感</h1>
+    <p class="post-meta"><time datetime="2016-11-11T07:09:56+08:00" itemprop="datePublished">Nov 11, 2016</time></p>
+  </header>
 
-  <ul class="post-list">
-    
-      <li>
-        <span class="post-meta">Nov 11, 2016</span>
+  <div class="post-content" itemprop="articleBody">
+    <p>前几天注册了一个小程序的帐号，玩了一把，选择吐槽一波，顺便往我这个几百年不更新的个人网站注水。</p>
 
-        <h2>
-          <a class="post-link" href="/%E9%9A%8F%E7%AC%94%EF%BC%8C%E6%B5%81%E6%B0%B4%E8%B4%A6/2016/11/11/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E5%90%8E%E6%84%9F.html">小程序开发后感</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 8, 2016</span>
+<h1 id="section">所谓“小程序”</h1>
 
-        <h2>
-          <a class="post-link" href="/android/2016/09/08/Android%E5%BC%80%E5%8F%91%E8%80%85%E7%BB%83%E4%B9%A0%E9%A1%B9%E7%9B%AEPopMovies-%E4%B8%80-HttpURLConnection&AsyncTask.html">Android开发者练习项目PopMovies（一）HttpURLConnection&amp;AsyncTask</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">Sep 5, 2016</span>
+<p>套路和前端开发一毛一样。
+前端是   html+js+css
+小程序是  wxml+js+wxss
+就连名字都只是简单的改改前缀。所谓的“WX语言”，有什么不懂的直接百度，前端＋相同的问题。
+我相信任何一个合格的前端，都能轻松上手小程序，就连我这个半吊子都可以。</p>
 
-        <h2>
-          <a class="post-link" href="/android/2016/09/05/%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8EMVP%E7%9A%84Android%E6%A0%87%E5%87%86%E5%8C%96%E6%A1%86%E6%9E%B6%E7%9A%84%E5%88%B6%E4%BD%9C%E8%BF%87%E7%A8%8B.html">一个基于MVP的Android标准化框架的制作过程</a>
-        </h2>
-      </li>
-    
-  </ul>
+<h1 id="section-1">开发工具的槽点</h1>
 
-  <p class="rss-subscribe"> <a href="/feed.xml">收藏本站</a></p>
+<p>下面我来重点吐槽一下wx的开发工具，这个是我从开始使用到开发完成都一直在吐槽的东西。</p>
 
-</div>
+<p><img src="http://ww3.sinaimg.cn/mw690/ad4f5c29gw1f9odingeq5j208q05kq35.jpg" alt="" /></p>
+
+<p>编辑框的滚动条等于没有!!!</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/ad4f5c29gw1f9odod28x1j20zm1740uv.jpg" alt="" /></p>
+
+<p>即使后面有再多的内容，都滚动不过去，你必须换行，但是有些地方换行会导致语法错误，简直醉了。
+ 如果内嵌的多了，或者单行长了，编辑的时候都很难受。</p>
+
+<p>工作台，在第一次进入的时候，下标是在 资源（sources）下的，但是显示的内容是 console，第一次使用的时候以为我MAC卡了，我一脸蒙蔽。</p>
+
+<p><img src="http://ww2.sinaimg.cn/mw690/ad4f5c29gw1f9odvxll1jj21gi0s67c8.jpg" alt="" /></p>
+
+<p>在微信上运行项目的时候，所有image的资源链接都被屏蔽，
+我在编译器上的效果是这样的</p>
+
+<p><img src="http://ww4.sinaimg.cn/mw690/ad4f5c29gw1f9odxsxb04j21kw0vs48f.jpg" alt="" /></p>
+
+<p>但是在微信上是空白的。我虽然没有申请上线，但是小程序既然允许真机调试，那么我有理由相信这个是bug。</p>
+
+<h1 id="section-2">结尾</h1>
+
+<p>小程序在填写注册的时候会要求你选择服务类别，有几十种吧，并且要求你的“小程序”要严格在你选择的服务类别之内，小程序官方文档中还有一个设计规范，我不清楚是建议还是规定，我感觉这尿性会是规定（毕竟苹果爸爸不高兴了，给你下架你不是和360一样蒙蔽）。这样，小程序就不会那么容易给创业者多大的发挥空间，至少现在的公测版是这样的。</p>
+
+
+  </div>
+
+</article>
 
       </div>
     </main>
