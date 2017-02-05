@@ -30,9 +30,10 @@ categories: Android,动效
 ``` andoird
 <FrameLayout     android:id="@+id/panel_left"     />
 ```
+
 layout-large 下 使用两个个面板
 
-``` andoird
+```
 <FrameLayout     android:id="@+id/panel_left"     />
 <FrameLayout     android:id="@+id/panel_right"     />
 ```
