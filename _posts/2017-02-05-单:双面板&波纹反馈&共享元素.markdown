@@ -5,25 +5,25 @@ date:   2017-02-05 5:10:22 +0800
 categories: Android,动效
 ---
 
-# 开始
+## 开始
 
 本来想封装成框架，由于本次项目想要大量运用动效，改成介绍原理，可以有更多的自定义效果。
 
-# 多面板
+## 多面板
 
-## 创建
+# 创建
 
 所谓多面板，就是为了同时适配 PAD(大屏幕设备)以及PHONE(正常屏幕设备) 使用大量的Fragment或者CardView分割界面 的布局。
 正常布局一般放在 res/layout 中，为了适配 PAD 要在res下再创建一个文件夹 res/layout-large 同时创建一同名的布局如图
 	
 ![](http://wx3.sinaimg.cn/mw690/ad4f5c29gy1fcfkwoud67j20cd04v74l.jpg)
 	
-## 使用
+# 使用
 
 使用的时候和正常一样，当程序运行在PAD上时，系统会优先查找 res/layout-large 中的布局，如果没有，再到 res/layout 下查找。
 显示适配以后，要进行逻辑适配。
 	
-## 代码中区别当前使用的是 layout-large 下的布局还是 layout 下的布局 
+# 代码中区别当前使用的是 layout-large 下的布局还是 layout 下的布局 
 	
 通过 判断 两者布局的差异。比如 layout 下 使用一个面板
 	
@@ -49,20 +49,20 @@ if(ViewGroup.findViewById(R.id.panel_right) != null ){
 ![](http://wx4.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlyjjj21kw16o75j.jpg)
 ![](http://wx1.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlbvtj21401z4763.jpg)
 
-# 波纹动效
+## 波纹动效
 
-## 源码及效果
+# 源码及效果
 
 源码:https://github.com/naman14/MaterialPowerMenu
 效果:
 ![](https://raw.githubusercontent.com/naman14/MaterialPowerMenu/master/demo.gif)
 
-## 场景
+# 场景
 
 弹出对话框时 使用 波纹动效 遮盖全部界面,同时显示对话框。
 对话框消失时 使用 回退波纹动效 揭示被遮盖的界面。
 
-## 使用
+# 使用
 
 类名: CircularRevealView (位于 库中 的View包下)
 
@@ -84,18 +84,20 @@ private void hide(View v,int r_color){
 	circularRevealView.hide(p.x,p.y,r_color,v.getHeight() / 2, 400, null);
 }
 ```
-# 共享元素
+
+## 共享元素
 
 android 5.0 后自带的场景转换效果
 效果如下
+
 ![](http://img.blog.csdn.net/20150730072051139)
 
-## 场景
+# 场景
 
 activity 之间跳转，有相同元素时
 如: 采购任务中的 产品名 以及 采购详情中的 产品名一致， 使用该效果
 
-## 使用
+# 使用
 
 ``` android
 public static void launch(AppCompatActivity activity, View transitionView){
@@ -129,7 +131,7 @@ options 可以配置多个 共享元素
 intent 可以 配置 扩展参数 来专递 数据
 所以 launch 的 参数 不要局限于这2个。
 
-# 结束
+## 结束
 
 更多有合适的动效 和 布局方式 ， 再开发中 根据模块的情况使用。
 
