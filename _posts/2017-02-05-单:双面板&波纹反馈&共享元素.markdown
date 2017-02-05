@@ -31,10 +31,12 @@ categories: Android,动效
 <FrameLayout     android:id="@+id/panel_left"     />
 ```
 layout-large 下 使用两个个面板
+
 ``` andoird
 <FrameLayout     android:id="@+id/panel_left"     />
 <FrameLayout     android:id="@+id/panel_right"     />
 ```
+
 通过判断 panel_right 是否存在 来判断使用哪一块布局
 
 ``` android
