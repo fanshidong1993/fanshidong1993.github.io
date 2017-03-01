@@ -1,10 +1,9 @@
 ---
 layout: post
 title:  "Express 【快递】 Android 开发框架"
-date:   2017-02-05 5:10:22 +0800
+date:   2017-03-01 5:50:22 +0800
 categories: Android
 ---
-
 #前言
 
 Express是一款基于DataBinding&EventBus的Android开发框架
@@ -131,10 +130,27 @@ Model 的入口
 
 #Express主体流程
 	
-发起创建／改变 视图 --> Activity --> 构造RequestData 并推送给Model --> Model解析RequestData 并处理URL --> 得到处理结果的EventData 重构处理成UIData（有时可以直接使用，比如列表数据） 并推送给 Activity --> Activity 使用Databinding绑定UIData --> 视图 改变／创建 完成
+发起创建／改变 视图 
 
-开发过程 a) 视图 + Activity + TmpModel 向 TmpModel 请求 拼接好的Data来展示
+--> Activity 
+
+--> 构造RequestData 并推送给Model 
+
+--> Model解析RequestData 并处理URL 
+
+--> 得到处理结果的EventData 重构处理成UIData（有时可以直接使用，比如列表数据） 并推送给 Activity 
+
+--> Activity 使用Databinding绑定UIData 
+
+--> 视图 改变／创建 完成
+
+
+开发过程 
+			
+		a) 视图 + Activity + TmpModel 向 TmpModel 请求 拼接好的Data来展示
+
 		  b) TmpActivity（不需要是 可视逻辑，Main，Java类均可，EventBus 可以在任何地方发起推送） + Model TmpActivity 向 Model 模拟请求 使用Log 打印来调试Api和本地数据库
+		  
 		  c) 把Tmp 替换即可。
 		
 无论是 一个人在不同时间 编写Activity 和 Model
