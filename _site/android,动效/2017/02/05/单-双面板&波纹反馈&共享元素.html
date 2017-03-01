@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>适配PAD多面板方法以及动效介绍</title>
+  <meta name="description" content="开始">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://example.com/android,%E5%8A%A8%E6%95%88/2017/02/05/%E5%8D%95-%E5%8F%8C%E9%9D%A2%E6%9D%BF&%E6%B3%A2%E7%BA%B9%E5%8F%8D%E9%A6%88&%E5%85%B1%E4%BA%AB%E5%85%83%E7%B4%A0.html">
+  <link rel="alternate" type="application/rss+xml" title="海岸牧场" href="http://example.com/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">海岸牧场</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">关于本站</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">适配PAD多面板方法以及动效介绍</h1>
+    <p class="post-meta"><time datetime="2017-02-05T05:10:22+08:00" itemprop="datePublished">Feb 5, 2017</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="section">开始</h2>
+
+<p>本来想封装成框架，由于本次项目想要大量运用动效，改成介绍原理，可以有更多的自定义效果。</p>
+
+<h2 id="section-1">多面板</h2>
+
+<h1 id="section-2">创建</h1>
+
+<p>所谓多面板，就是为了同时适配 PAD(大屏幕设备)以及PHONE(正常屏幕设备) 使用大量的Fragment或者CardView分割界面 的布局。
+正常布局一般放在 res/layout 中，为了适配 PAD 要在res下再创建一个文件夹 res/layout-large 同时创建一同名的布局如图</p>
+
+<p><img src="http://wx3.sinaimg.cn/mw690/ad4f5c29gy1fcfkwoud67j20cd04v74l.jpg" alt="" /></p>
+
+<h1 id="section-3">使用</h1>
+
+<p>使用的时候和正常一样，当程序运行在PAD上时，系统会优先查找 res/layout-large 中的布局，如果没有，再到 res/layout 下查找。
+显示适配以后，要进行逻辑适配。</p>
+
+<h1 id="layout-large--layout-">代码中区别当前使用的是 layout-large 下的布局还是 layout 下的布局</h1>
+
+<p>通过 判断 两者布局的差异。比如 layout 下 使用一个面板</p>
+
+<pre><code class="language-andoird">&lt;FrameLayout     android:id="@+id/panel_left"     /&gt;
+</code></pre>
+
+<p>layout-large 下 使用两个个面板</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&lt;FrameLayout     android:id="@+id/panel_left"     /&gt;
+&lt;FrameLayout     android:id="@+id/panel_right"     /&gt;
+</code></pre>
+</div>
+
+<p>通过判断 panel_right 是否存在 来判断使用哪一块布局</p>
+
+<pre><code class="language-android">if(ViewGroup.findViewById(R.id.panel_right) != null ){
+	//使用的 layout-large 下的布局
+}else{
+	//使用的 layout 下的布局
+}
+</code></pre>
+
+<p>效果如下 
+<img src="http://wx4.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlyjjj21kw16o75j.jpg" alt="" />
+<img src="http://wx1.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlbvtj21401z4763.jpg" alt="" /></p>
+
+<h2 id="section-4">波纹动效</h2>
+
+<h1 id="section-5">源码及效果</h1>
+
+<p>源码:https://github.com/naman14/MaterialPowerMenu
+效果:
+<img src="https://raw.githubusercontent.com/naman14/MaterialPowerMenu/master/demo.gif" alt="" /></p>
+
+<h1 id="section-6">场景</h1>
+
+<p>弹出对话框时 使用 波纹动效 遮盖全部界面,同时显示对话框。
+对话框消失时 使用 回退波纹动效 揭示被遮盖的界面。</p>
+
+<h1 id="section-7">使用</h1>
+
+<p>类名: CircularRevealView (位于 库中 的View包下)</p>
+
+<p>使用FrameLayout  再最上层 放一个 CircularRevealView，以达到 遮盖和揭示的 效果</p>
+
+<p>遮盖 以及 揭示的 代码</p>
+
+<pre><code class="language-android">//遮盖
+private void launchPowerMenu(View v,int color) {
+	//计算 view 的中心位置 Helper 与 CircularRevealView 同目录
+	final Point p = Helper.getLocationInView(circularRevealView, v); 
+	//参数 分别是 位置x,y,颜色，最小半径,动效时间，动效监听
+	circularRevealView.reveal(p.x, p.y, color, v.getHeight() / 2, 400, null);
+}
+//揭示
+private void hide(View v,int r_color){
+	final Point p = Helper.getLocationInView(circularRevealView, v);
+	circularRevealView.hide(p.x,p.y,r_color,v.getHeight() / 2, 400, null);
+}
+</code></pre>
+
+<h2 id="section-8">共享元素</h2>
+
+<p>android 5.0 后自带的场景转换效果
+效果如下</p>
+
+<p><img src="http://img.blog.csdn.net/20150730072051139" alt="" /></p>
+
+<h1 id="section-9">场景</h1>
+
+<p>activity 之间跳转，有相同元素时
+如: 采购任务中的 产品名 以及 采购详情中的 产品名一致， 使用该效果</p>
+
+<h1 id="section-10">使用</h1>
+
+<pre><code class="language-android">public static void launch(AppCompatActivity activity, View transitionView){
+
+	//配置跳转Intent
+	Intent intent = new Intent(activity,NewActivity.class);
+	//制动 跳出 activity 中的 元素 为共享元素 并为该元素指定名称
+	ActivityOptionsCompat options = ActivityOptionsCompat
+	.makeSceneTransitionAnimation(activity, transitionView, "tv");
+	//启动跳转
+	ActivityCompat.startActivity(activity, intent, options.toBundle());
+}
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+	setContentView(R.layout.activity_new);
+	TextView tv = (TextView) findViewById(R.id.tv_hw);
+	//制定跳入界面的共享元素 并 制定名称 （必需与跳出界面指定的元素名称一致）
+	ViewCompat.setTransitionName(tv,"tv");
+}
+
+</code></pre>
+
+<p>然后再 跳出 Activity 中 调用 launch</p>
+
+<pre><code class="language-android">NewActivity.launch(MainActivity.this,tv);
+</code></pre>
+
+<p>options 可以配置多个 共享元素
+intent 可以 配置 扩展参数 来专递 数据
+所以 launch 的 参数 不要局限于这2个。</p>
+
+<h2 id="section-11">结束</h2>
+
+<p>更多有合适的动效 和 布局方式 ， 再开发中 根据模块的情况使用。</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">海岸牧场</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>海岸牧场</li>
+          <li><a href="mailto:fanshidong_1993@icloud.com">fanshidong_1993@icloud.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/fanshidong1993"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">fanshidong1993</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>一个码农呕心沥血的东西。 需要交流可以email我。
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

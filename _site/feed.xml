@@ -6,9 +6,317 @@
 </description>
     <link>http://example.com/</link>
     <atom:link href="http://example.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 11 Nov 2016 19:36:31 +0800</pubDate>
-    <lastBuildDate>Fri, 11 Nov 2016 19:36:31 +0800</lastBuildDate>
+    <pubDate>Wed, 01 Mar 2017 17:56:59 +0800</pubDate>
+    <lastBuildDate>Wed, 01 Mar 2017 17:56:59 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>Express 【快递】 Android 开发框架</title>
+        <description>&lt;p&gt;#前言&lt;/p&gt;
+
+&lt;p&gt;Express是一款基于DataBinding&amp;amp;EventBus的Android开发框架&lt;/p&gt;
+
+&lt;p&gt;#背景&lt;/p&gt;
+
+&lt;p&gt;公司的接口申请制度，导致了调试接口总是在编辑页面之后
+前期的MVP使用不当导致代码臃肿
+故而再实际开发和应用中，总结出了现在的Express&lt;/p&gt;
+
+&lt;p&gt;#特点&lt;/p&gt;
+
+&lt;p&gt;高内聚 视图、逻辑、数据 分离
+低耦合 利用EventBus的特性实现解耦
+高效展示数据 XML+DataBinding&lt;/p&gt;
+
+&lt;p&gt;#名词解释&lt;/p&gt;
+
+&lt;p&gt;再介绍Express前要介绍几个重要的名称来帮助理解&lt;/p&gt;
+
+&lt;p&gt;##EventBus&lt;/p&gt;
+
+&lt;p&gt;EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
+我用一个比喻来介绍 EventBus的工作原理：
+我把每一个类比做 用户。
+把每一个EventBus的实体比做 邮差。
+把每一条数据比做 刊物。
+首先 我们要创建一个邮差 EventBus expresser = new EventBus();
+第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
+第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
+第四 我们要明确 那些用户 订阅了哪些刊物 
+		ClassA Subscribe DataB,DataD
+		ClassB Subscribe DataC,DataA
+		ClassC Subscribe DataA
+		ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	``` java
+	class ClassA{
+		@Subscribe
+		public void onEvent(DataB datab){
+			//TODO 编写你对数据的处理
+		}
+		@Subscribe
+		public void onEvent(DataD datad){
+			//TODO 编写你对数据的处理
+		}
+	}
+	```
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;第五 我们要让邮差明确 他要给谁送刊物
+		expresser.regist(ClassA)
+		expresser.regist(ClassB)
+		expresser.regist(ClassC)
+		ClassD 不用注册，因为他没有订阅
+		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低&lt;/p&gt;
+
+&lt;p&gt;第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
+		expresser.post(DataX)
+		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。&lt;/p&gt;
+
+&lt;p&gt;##Databinding&lt;/p&gt;
+
+&lt;p&gt;Android Studio 内置功能 可以把 数据类与视图文件绑定
+初始化试图时， 把数据类对应的实体设置到视图上就不用再一个一个去设置控件的内容。&lt;/p&gt;
+
+&lt;p&gt;##Activity&lt;/p&gt;
+
+&lt;p&gt;包括了 Fragment，Dialog，View 等类，这里作为逻辑来处理，主要服务于 动画效果，字体，颜色，等可视逻辑的处理。&lt;/p&gt;
+
+&lt;p&gt;##Model&lt;/p&gt;
+
+&lt;p&gt;不可视逻辑，主要处理网络Api请求，本地数据库查询，耗时操作 等不可视逻辑。&lt;/p&gt;
+
+&lt;p&gt;##Entity&lt;/p&gt;
+
+&lt;p&gt;作为表结构的数据&lt;/p&gt;
+
+&lt;p&gt;##RequestData&lt;/p&gt;
+
+&lt;p&gt;作为Model处理事件 的入口数据&lt;/p&gt;
+
+&lt;p&gt;#数据&lt;/p&gt;
+
+&lt;p&gt;一个App的本质就是数据，就是对于数据的构造、存储、展示。
+Express 中，数据被切分外两类：EventData，UIData
+EventData:
+	不可视数据 主要作为EventBus 传递的对象
+	侧重于合理的构造 服务于 Api接口 以及 本地数据库
+	其中:
+		Entity 作为表结构存在，只有对应的Dao才能接触到。
+		RequestData 作为Model的入口， 只有Model才能订阅
+UIData:
+	可视数据 主要作为DataBinding 视图绑定的对象
+	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示&lt;/p&gt;
+
+&lt;p&gt;#逻辑&lt;/p&gt;
+
+&lt;p&gt;分为可视逻辑（Activity） 和 不可视逻辑（Model）&lt;/p&gt;
+
+&lt;p&gt;##Model&lt;/p&gt;
+
+&lt;p&gt;Model 是Express的重点 下面介绍几个Model的元素&lt;/p&gt;
+
+&lt;p&gt;##RequestData&lt;/p&gt;
+
+&lt;p&gt;Model 的入口&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RequestData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//请求的URL，http开头是网络请求， DB开头是本地数据库请求，是Model中唯一识别的标记&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//参数 &lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//如果是 http 则必须有 post or get&lt;/span&gt;
+		&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//是activity内用来唯一识别的标记&lt;/span&gt;
+	&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;一个Model，他可以处理什么URL都会在initUrls()方法中定义好，每个Api_URL需要什么参数 会在接口文档中写明。每个DB_URL需要的参数 则需要编写model的人备注。&lt;/p&gt;
+
+&lt;p&gt;##EventBus&lt;/p&gt;
+
+&lt;p&gt;邮差，一个Model 只有一个，在得到处理完成的数据后，准确的推送给Activity
+注意：EventBus 只能再Model中使用，可视逻辑中，使用Interface
+一方面 EventBus 在前期有滥用的现象
+另一方面 ，Interface 可以更好的解决多态的问题&lt;/p&gt;
+
+&lt;p&gt;#Express主体流程&lt;/p&gt;
+
+&lt;p&gt;发起创建／改变 视图&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; Activity&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; 构造RequestData 并推送给Model&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; Model解析RequestData 并处理URL&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; 得到处理结果的EventData 重构处理成UIData（有时可以直接使用，比如列表数据） 并推送给 Activity&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; Activity 使用Databinding绑定UIData&lt;/p&gt;
+
+&lt;p&gt;–&amp;gt; 视图 改变／创建 完成&lt;/p&gt;
+
+&lt;p&gt;开发过程&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	a) 视图 + Activity + TmpModel 向 TmpModel 请求 拼接好的Data来展示
+
+	  b) TmpActivity（不需要是 可视逻辑，Main，Java类均可，EventBus 可以在任何地方发起推送） + Model TmpActivity 向 Model 模拟请求 使用Log 打印来调试Api和本地数据库
+	  
+	  c) 把Tmp 替换即可。
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;无论是 一个人在不同时间 编写Activity 和 Model
+还是 2个人再同一时间编写Activity 和 Model
+都可以 无缝对接。&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 01 Mar 2017 05:50:22 +0800</pubDate>
+        <link>http://example.com/android,express/2017/03/01/Express.html</link>
+        <guid isPermaLink="true">http://example.com/android,express/2017/03/01/Express.html</guid>
+        
+        
+        <category>Android,Express</category>
+        
+      </item>
+    
+      <item>
+        <title>适配PAD多面板方法以及动效介绍</title>
+        <description>&lt;h2 id=&quot;section&quot;&gt;开始&lt;/h2&gt;
+
+&lt;p&gt;本来想封装成框架，由于本次项目想要大量运用动效，改成介绍原理，可以有更多的自定义效果。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;多面板&lt;/h2&gt;
+
+&lt;h1 id=&quot;section-2&quot;&gt;创建&lt;/h1&gt;
+
+&lt;p&gt;所谓多面板，就是为了同时适配 PAD(大屏幕设备)以及PHONE(正常屏幕设备) 使用大量的Fragment或者CardView分割界面 的布局。
+正常布局一般放在 res/layout 中，为了适配 PAD 要在res下再创建一个文件夹 res/layout-large 同时创建一同名的布局如图&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://wx3.sinaimg.cn/mw690/ad4f5c29gy1fcfkwoud67j20cd04v74l.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-3&quot;&gt;使用&lt;/h1&gt;
+
+&lt;p&gt;使用的时候和正常一样，当程序运行在PAD上时，系统会优先查找 res/layout-large 中的布局，如果没有，再到 res/layout 下查找。
+显示适配以后，要进行逻辑适配。&lt;/p&gt;
+
+&lt;h1 id=&quot;layout-large--layout-&quot;&gt;代码中区别当前使用的是 layout-large 下的布局还是 layout 下的布局&lt;/h1&gt;
+
+&lt;p&gt;通过 判断 两者布局的差异。比如 layout 下 使用一个面板&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-andoird&quot;&gt;&amp;lt;FrameLayout     android:id=&quot;@+id/panel_left&quot;     /&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;layout-large 下 使用两个个面板&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;FrameLayout     android:id=&quot;@+id/panel_left&quot;     /&amp;gt;
+&amp;lt;FrameLayout     android:id=&quot;@+id/panel_right&quot;     /&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;通过判断 panel_right 是否存在 来判断使用哪一块布局&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;if(ViewGroup.findViewById(R.id.panel_right) != null ){
+	//使用的 layout-large 下的布局
+}else{
+	//使用的 layout 下的布局
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;效果如下 
+&lt;img src=&quot;http://wx4.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlyjjj21kw16o75j.jpg&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;http://wx1.sinaimg.cn/mw690/ad4f5c29gy1fcflhrlbvtj21401z4763.jpg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;波纹动效&lt;/h2&gt;
+
+&lt;h1 id=&quot;section-5&quot;&gt;源码及效果&lt;/h1&gt;
+
+&lt;p&gt;源码:https://github.com/naman14/MaterialPowerMenu
+效果:
+&lt;img src=&quot;https://raw.githubusercontent.com/naman14/MaterialPowerMenu/master/demo.gif&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-6&quot;&gt;场景&lt;/h1&gt;
+
+&lt;p&gt;弹出对话框时 使用 波纹动效 遮盖全部界面,同时显示对话框。
+对话框消失时 使用 回退波纹动效 揭示被遮盖的界面。&lt;/p&gt;
+
+&lt;h1 id=&quot;section-7&quot;&gt;使用&lt;/h1&gt;
+
+&lt;p&gt;类名: CircularRevealView (位于 库中 的View包下)&lt;/p&gt;
+
+&lt;p&gt;使用FrameLayout  再最上层 放一个 CircularRevealView，以达到 遮盖和揭示的 效果&lt;/p&gt;
+
+&lt;p&gt;遮盖 以及 揭示的 代码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;//遮盖
+private void launchPowerMenu(View v,int color) {
+	//计算 view 的中心位置 Helper 与 CircularRevealView 同目录
+	final Point p = Helper.getLocationInView(circularRevealView, v); 
+	//参数 分别是 位置x,y,颜色，最小半径,动效时间，动效监听
+	circularRevealView.reveal(p.x, p.y, color, v.getHeight() / 2, 400, null);
+}
+//揭示
+private void hide(View v,int r_color){
+	final Point p = Helper.getLocationInView(circularRevealView, v);
+	circularRevealView.hide(p.x,p.y,r_color,v.getHeight() / 2, 400, null);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;section-8&quot;&gt;共享元素&lt;/h2&gt;
+
+&lt;p&gt;android 5.0 后自带的场景转换效果
+效果如下&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://img.blog.csdn.net/20150730072051139&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;section-9&quot;&gt;场景&lt;/h1&gt;
+
+&lt;p&gt;activity 之间跳转，有相同元素时
+如: 采购任务中的 产品名 以及 采购详情中的 产品名一致， 使用该效果&lt;/p&gt;
+
+&lt;h1 id=&quot;section-10&quot;&gt;使用&lt;/h1&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;public static void launch(AppCompatActivity activity, View transitionView){
+
+	//配置跳转Intent
+	Intent intent = new Intent(activity,NewActivity.class);
+	//制动 跳出 activity 中的 元素 为共享元素 并为该元素指定名称
+	ActivityOptionsCompat options = ActivityOptionsCompat
+	.makeSceneTransitionAnimation(activity, transitionView, &quot;tv&quot;);
+	//启动跳转
+	ActivityCompat.startActivity(activity, intent, options.toBundle());
+}
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+	setContentView(R.layout.activity_new);
+	TextView tv = (TextView) findViewById(R.id.tv_hw);
+	//制定跳入界面的共享元素 并 制定名称 （必需与跳出界面指定的元素名称一致）
+	ViewCompat.setTransitionName(tv,&quot;tv&quot;);
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后再 跳出 Activity 中 调用 launch&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-android&quot;&gt;NewActivity.launch(MainActivity.this,tv);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;options 可以配置多个 共享元素
+intent 可以 配置 扩展参数 来专递 数据
+所以 launch 的 参数 不要局限于这2个。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-11&quot;&gt;结束&lt;/h2&gt;
+
+&lt;p&gt;更多有合适的动效 和 布局方式 ， 再开发中 根据模块的情况使用。&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 05 Feb 2017 05:10:22 +0800</pubDate>
+        <link>http://example.com/android,%E5%8A%A8%E6%95%88/2017/02/05/%E5%8D%95-%E5%8F%8C%E9%9D%A2%E6%9D%BF&%E6%B3%A2%E7%BA%B9%E5%8F%8D%E9%A6%88&%E5%85%B1%E4%BA%AB%E5%85%83%E7%B4%A0.html</link>
+        <guid isPermaLink="true">http://example.com/android,%E5%8A%A8%E6%95%88/2017/02/05/%E5%8D%95-%E5%8F%8C%E9%9D%A2%E6%9D%BF&%E6%B3%A2%E7%BA%B9%E5%8F%8D%E9%A6%88&%E5%85%B1%E4%BA%AB%E5%85%83%E7%B4%A0.html</guid>
+        
+        
+        <category>Android,动效</category>
+        
+      </item>
     
       <item>
         <title>小程序开发后感</title>

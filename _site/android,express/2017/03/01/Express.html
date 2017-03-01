@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Express 【快递】 Android 开发框架</title>
+  <meta name="description" content="#前言">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://example.com/android,express/2017/03/01/Express.html">
+  <link rel="alternate" type="application/rss+xml" title="海岸牧场" href="http://example.com/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">海岸牧场</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">关于本站</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Express 【快递】 Android 开发框架</h1>
+    <p class="post-meta"><time datetime="2017-03-01T05:50:22+08:00" itemprop="datePublished">Mar 1, 2017</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>#前言</p>
+
+<p>Express是一款基于DataBinding&amp;EventBus的Android开发框架</p>
+
+<p>#背景</p>
+
+<p>公司的接口申请制度，导致了调试接口总是在编辑页面之后
+前期的MVP使用不当导致代码臃肿
+故而再实际开发和应用中，总结出了现在的Express</p>
+
+<p>#特点</p>
+
+<p>高内聚 视图、逻辑、数据 分离
+低耦合 利用EventBus的特性实现解耦
+高效展示数据 XML+DataBinding</p>
+
+<p>#名词解释</p>
+
+<p>再介绍Express前要介绍几个重要的名称来帮助理解</p>
+
+<p>##EventBus</p>
+
+<p>EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
+我用一个比喻来介绍 EventBus的工作原理：
+我把每一个类比做 用户。
+把每一个EventBus的实体比做 邮差。
+把每一条数据比做 刊物。
+首先 我们要创建一个邮差 EventBus expresser = new EventBus();
+第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
+第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
+第四 我们要明确 那些用户 订阅了哪些刊物 
+		ClassA Subscribe DataB,DataD
+		ClassB Subscribe DataC,DataA
+		ClassC Subscribe DataA
+		ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	``` java
+	class ClassA{
+		@Subscribe
+		public void onEvent(DataB datab){
+			//TODO 编写你对数据的处理
+		}
+		@Subscribe
+		public void onEvent(DataD datad){
+			//TODO 编写你对数据的处理
+		}
+	}
+	```
+</code></pre>
+</div>
+
+<p>第五 我们要让邮差明确 他要给谁送刊物
+		expresser.regist(ClassA)
+		expresser.regist(ClassB)
+		expresser.regist(ClassC)
+		ClassD 不用注册，因为他没有订阅
+		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低</p>
+
+<p>第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
+		expresser.post(DataX)
+		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。</p>
+
+<p>##Databinding</p>
+
+<p>Android Studio 内置功能 可以把 数据类与视图文件绑定
+初始化试图时， 把数据类对应的实体设置到视图上就不用再一个一个去设置控件的内容。</p>
+
+<p>##Activity</p>
+
+<p>包括了 Fragment，Dialog，View 等类，这里作为逻辑来处理，主要服务于 动画效果，字体，颜色，等可视逻辑的处理。</p>
+
+<p>##Model</p>
+
+<p>不可视逻辑，主要处理网络Api请求，本地数据库查询，耗时操作 等不可视逻辑。</p>
+
+<p>##Entity</p>
+
+<p>作为表结构的数据</p>
+
+<p>##RequestData</p>
+
+<p>作为Model处理事件 的入口数据</p>
+
+<p>#数据</p>
+
+<p>一个App的本质就是数据，就是对于数据的构造、存储、展示。
+Express 中，数据被切分外两类：EventData，UIData
+EventData:
+	不可视数据 主要作为EventBus 传递的对象
+	侧重于合理的构造 服务于 Api接口 以及 本地数据库
+	其中:
+		Entity 作为表结构存在，只有对应的Dao才能接触到。
+		RequestData 作为Model的入口， 只有Model才能订阅
+UIData:
+	可视数据 主要作为DataBinding 视图绑定的对象
+	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示</p>
+
+<p>#逻辑</p>
+
+<p>分为可视逻辑（Activity） 和 不可视逻辑（Model）</p>
+
+<p>##Model</p>
+
+<p>Model 是Express的重点 下面介绍几个Model的元素</p>
+
+<p>##RequestData</p>
+
+<p>Model 的入口</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="kd">class</span> <span class="nc">RequestData</span> <span class="o">{</span>
+		<span class="n">String</span> <span class="n">url</span><span class="o">;</span><span class="c1">//请求的URL，http开头是网络请求， DB开头是本地数据库请求，是Model中唯一识别的标记</span>
+		<span class="n">String</span> <span class="n">json</span><span class="o">;</span><span class="c1">//参数 </span>
+		<span class="n">String</span> <span class="n">method</span><span class="o">;</span><span class="c1">//如果是 http 则必须有 post or get</span>
+		<span class="n">String</span> <span class="n">tag</span><span class="o">;</span><span class="c1">//是activity内用来唯一识别的标记</span>
+	<span class="o">}</span>
+</code></pre>
+</div>
+<p>一个Model，他可以处理什么URL都会在initUrls()方法中定义好，每个Api_URL需要什么参数 会在接口文档中写明。每个DB_URL需要的参数 则需要编写model的人备注。</p>
+
+<p>##EventBus</p>
+
+<p>邮差，一个Model 只有一个，在得到处理完成的数据后，准确的推送给Activity
+注意：EventBus 只能再Model中使用，可视逻辑中，使用Interface
+一方面 EventBus 在前期有滥用的现象
+另一方面 ，Interface 可以更好的解决多态的问题</p>
+
+<p>#Express主体流程</p>
+
+<p>发起创建／改变 视图</p>
+
+<p>–&gt; Activity</p>
+
+<p>–&gt; 构造RequestData 并推送给Model</p>
+
+<p>–&gt; Model解析RequestData 并处理URL</p>
+
+<p>–&gt; 得到处理结果的EventData 重构处理成UIData（有时可以直接使用，比如列表数据） 并推送给 Activity</p>
+
+<p>–&gt; Activity 使用Databinding绑定UIData</p>
+
+<p>–&gt; 视图 改变／创建 完成</p>
+
+<p>开发过程</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	a) 视图 + Activity + TmpModel 向 TmpModel 请求 拼接好的Data来展示
+
+	  b) TmpActivity（不需要是 可视逻辑，Main，Java类均可，EventBus 可以在任何地方发起推送） + Model TmpActivity 向 Model 模拟请求 使用Log 打印来调试Api和本地数据库
+	  
+	  c) 把Tmp 替换即可。
+</code></pre>
+</div>
+
+<p>无论是 一个人在不同时间 编写Activity 和 Model
+还是 2个人再同一时间编写Activity 和 Model
+都可以 无缝对接。</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">海岸牧场</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>海岸牧场</li>
+          <li><a href="mailto:fanshidong_1993@icloud.com">fanshidong_1993@icloud.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/fanshidong1993"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">fanshidong1993</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>一个码农呕心沥血的东西。 需要交流可以email我。
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
