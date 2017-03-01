@@ -1,0 +1,156 @@
+---
+layout: post
+title:  "Express 【快递】 Android 开发框架"
+date:   2017-02-05 5:10:22 +0800
+categories: Android,动效
+---
+
+#前言
+
+Express是一款基于DataBinding&EventBus的Android开发框架
+
+#背景
+
+公司的接口申请制度，导致了调试接口总是在编辑页面之后
+前期的MVP使用不当导致代码臃肿
+故而再实际开发和应用中，总结出了现在的Express
+
+#特点
+
+高内聚 视图、逻辑、数据 分离
+低耦合 利用EventBus的特性实现解耦
+高效展示数据 XML+DataBinding
+
+#名词解释
+
+再介绍Express前要介绍几个重要的名称来帮助理解
+
+##EventBus
+
+EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
+我用一个比喻来介绍 EventBus的工作原理：
+我把每一个类比做 用户。
+把每一个EventBus的实体比做 邮差。
+把每一条数据比做 刊物。
+首先 我们要创建一个邮差 EventBus expresser = new EventBus();
+第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
+第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
+第四 我们要明确 那些用户 订阅了哪些刊物 
+		ClassA Subscribe DataB,DataD
+		ClassB Subscribe DataC,DataA
+		ClassC Subscribe DataA
+		ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如
+		
+		``` java
+		class ClassA{
+			@Subscribe
+			public void onEvent(DataB datab){
+				//TODO 编写你对数据的处理
+			}
+			@Subscribe
+			public void onEvent(DataD datad){
+				//TODO 编写你对数据的处理
+			}
+		}
+		```
+	
+第五 我们要让邮差明确 他要给谁送刊物
+		expresser.regist(ClassA)
+		expresser.regist(ClassB)
+		expresser.regist(ClassC)
+		ClassD 不用注册，因为他没有订阅
+		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低
+		
+第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
+		expresser.post(DataX)
+		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。
+	
+##Databinding
+
+Android Studio 内置功能 可以把 数据类与视图文件绑定
+初始化试图时， 把数据类对应的实体设置到视图上就不用再一个一个去设置控件的内容。
+
+##Activity
+
+包括了 Fragment，Dialog，View 等类，这里作为逻辑来处理，主要服务于 动画效果，字体，颜色，等可视逻辑的处理。
+
+##Model
+
+不可视逻辑，主要处理网络Api请求，本地数据库查询，耗时操作 等不可视逻辑。
+
+##Entity
+
+作为表结构的数据
+
+##RequestData
+
+作为Model处理事件 的入口数据
+
+#数据
+
+一个App的本质就是数据，就是对于数据的构造、存储、展示。
+Express 中，数据被切分外两类：EventData，UIData
+EventData:
+	不可视数据 主要作为EventBus 传递的对象
+	侧重于合理的构造 服务于 Api接口 以及 本地数据库
+	其中:
+		Entity 作为表结构存在，只有对应的Dao才能接触到。
+		RequestData 作为Model的入口， 只有Model才能订阅
+UIData:
+	可视数据 主要作为DataBinding 视图绑定的对象
+	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示
+	
+#逻辑
+
+分为可视逻辑（Activity） 和 不可视逻辑（Model）
+
+##Model
+
+Model 是Express的重点 下面介绍几个Model的元素
+
+##RequestData
+
+Model 的入口
+
+``` java
+	class RequestData {
+		String url;//请求的URL，http开头是网络请求， DB开头是本地数据库请求，是Model中唯一识别的标记
+		String json;//参数 
+		String method;//如果是 http 则必须有 post or get
+		String tag;//是activity内用来唯一识别的标记
+	}
+```	
+一个Model，他可以处理什么URL都会在initUrls()方法中定义好，每个Api_URL需要什么参数 会在接口文档中写明。每个DB_URL需要的参数 则需要编写model的人备注。
+
+##EventBus
+
+邮差，一个Model 只有一个，在得到处理完成的数据后，准确的推送给Activity
+注意：EventBus 只能再Model中使用，可视逻辑中，使用Interface
+一方面 EventBus 在前期有滥用的现象
+另一方面 ，Interface 可以更好的解决多态的问题
+
+#Express主体流程
+	
+发起创建／改变 视图 --> Activity --> 构造RequestData 并推送给Model --> Model解析RequestData 并处理URL --> 得到处理结果的EventData 重构处理成UIData（有时可以直接使用，比如列表数据） 并推送给 Activity --> Activity 使用Databinding绑定UIData --> 视图 改变／创建 完成
+
+开发过程 a) 视图 + Activity + TmpModel 向 TmpModel 请求 拼接好的Data来展示
+		  b) TmpActivity（不需要是 可视逻辑，Main，Java类均可，EventBus 可以在任何地方发起推送） + Model TmpActivity 向 Model 模拟请求 使用Log 打印来调试Api和本地数据库
+		  c) 把Tmp 替换即可。
+		
+无论是 一个人在不同时间 编写Activity 和 Model
+还是 2个人再同一时间编写Activity 和 Model
+都可以 无缝对接。
+
+
+
+ 
+
+	
+	
+	
+
+ 
+ 
+
+
+
