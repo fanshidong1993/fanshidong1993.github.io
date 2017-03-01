@@ -12,13 +12,17 @@ Express是一款基于DataBinding&EventBus的Android开发框架
 #背景
 
 公司的接口申请制度，导致了调试接口总是在编辑页面之后
+
 前期的MVP使用不当导致代码臃肿
+
 故而再实际开发和应用中，总结出了现在的Express
 
 #特点
 
 高内聚 视图、逻辑、数据 分离
+
 低耦合 利用EventBus的特性实现解耦
+
 高效展示数据 XML+DataBinding
 
 #名词解释
@@ -28,14 +32,23 @@ Express是一款基于DataBinding&EventBus的Android开发框架
 ##EventBus
 
 EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
+
 我用一个比喻来介绍 EventBus的工作原理：
+
 我把每一个类比做 用户。
+
 把每一个EventBus的实体比做 邮差。
+
 把每一条数据比做 刊物。
+
 首先 我们要创建一个邮差 EventBus expresser = new EventBus();
+
 第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
+
 第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
+
 第四 我们要明确 那些用户 订阅了哪些刊物 
+
 		ClassA Subscribe DataB,DataD
 		ClassB Subscribe DataC,DataA
 		ClassC Subscribe DataA
@@ -55,6 +68,7 @@ EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
 		```
 	
 第五 我们要让邮差明确 他要给谁送刊物
+
 		expresser.regist(ClassA)
 		expresser.regist(ClassB)
 		expresser.regist(ClassC)
@@ -62,6 +76,7 @@ EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
 		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低
 		
 第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
+
 		expresser.post(DataX)
 		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。
 	
