@@ -104,15 +104,25 @@ Android Studio 内置功能 可以把 数据类与视图文件绑定
 #数据
 
 一个App的本质就是数据，就是对于数据的构造、存储、展示。
+
 Express 中，数据被切分外两类：EventData，UIData
+
 EventData:
+
 	不可视数据 主要作为EventBus 传递的对象
+	
 	侧重于合理的构造 服务于 Api接口 以及 本地数据库
+	
 	其中:
+	
 		Entity 作为表结构存在，只有对应的Dao才能接触到。
+		
 		RequestData 作为Model的入口， 只有Model才能订阅
+		
 UIData:
+
 	可视数据 主要作为DataBinding 视图绑定的对象
+	
 	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示
 	
 #逻辑
