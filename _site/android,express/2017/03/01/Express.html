@@ -68,15 +68,19 @@
 
 <p>#背景</p>
 
-<p>公司的接口申请制度，导致了调试接口总是在编辑页面之后
-前期的MVP使用不当导致代码臃肿
-故而再实际开发和应用中，总结出了现在的Express</p>
+<p>公司的接口申请制度，导致了调试接口总是在编辑页面之后</p>
+
+<p>前期的MVP使用不当导致代码臃肿</p>
+
+<p>故而再实际开发和应用中，总结出了现在的Express</p>
 
 <p>#特点</p>
 
-<p>高内聚 视图、逻辑、数据 分离
-低耦合 利用EventBus的特性实现解耦
-高效展示数据 XML+DataBinding</p>
+<p>高内聚 视图、逻辑、数据 分离</p>
+
+<p>低耦合 利用EventBus的特性实现解耦</p>
+
+<p>高效展示数据 XML+DataBinding</p>
 
 <p>#名词解释</p>
 
@@ -84,21 +88,30 @@
 
 <p>##EventBus</p>
 
-<p>EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
-我用一个比喻来介绍 EventBus的工作原理：
-我把每一个类比做 用户。
-把每一个EventBus的实体比做 邮差。
-把每一条数据比做 刊物。
-首先 我们要创建一个邮差 EventBus expresser = new EventBus();
-第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
-第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
-第四 我们要明确 那些用户 订阅了哪些刊物 
-		ClassA Subscribe DataB,DataD
-		ClassB Subscribe DataC,DataA
-		ClassC Subscribe DataA
-		ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如</p>
+<p>EventBus 的作用是在类之间传递数据，是Express的灵魂所在。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	``` java
+<p>我用一个比喻来介绍 EventBus的工作原理：</p>
+
+<p>我把每一个类比做 用户。</p>
+
+<p>把每一个EventBus的实体比做 邮差。</p>
+
+<p>把每一条数据比做 刊物。</p>
+
+<p>首先 我们要创建一个邮差 EventBus expresser = new EventBus();</p>
+
+<p>第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD</p>
+
+<p>第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD</p>
+
+<p>第四 我们要明确 那些用户 订阅了哪些刊物</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	ClassA Subscribe DataB,DataD
+	ClassB Subscribe DataC,DataA
+	ClassC Subscribe DataA
+	ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如
+	
+	``` java
 	class ClassA{
 		@Subscribe
 		public void onEvent(DataB datab){
@@ -113,16 +126,22 @@
 </code></pre>
 </div>
 
-<p>第五 我们要让邮差明确 他要给谁送刊物
-		expresser.regist(ClassA)
-		expresser.regist(ClassB)
-		expresser.regist(ClassC)
-		ClassD 不用注册，因为他没有订阅
-		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低</p>
+<p>第五 我们要让邮差明确 他要给谁送刊物</p>
 
-<p>第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
-		expresser.post(DataX)
-		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>	expresser.regist(ClassA)
+	expresser.regist(ClassB)
+	expresser.regist(ClassC)
+	ClassD 不用注册，因为他没有订阅
+	注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低
+</code></pre>
+</div>
+
+<p>第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	expresser.post(DataX)
+	把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。
+</code></pre>
+</div>
 
 <p>##Databinding</p>
 
@@ -147,17 +166,31 @@
 
 <p>#数据</p>
 
-<p>一个App的本质就是数据，就是对于数据的构造、存储、展示。
-Express 中，数据被切分外两类：EventData，UIData
-EventData:
-	不可视数据 主要作为EventBus 传递的对象
-	侧重于合理的构造 服务于 Api接口 以及 本地数据库
-	其中:
-		Entity 作为表结构存在，只有对应的Dao才能接触到。
-		RequestData 作为Model的入口， 只有Model才能订阅
-UIData:
-	可视数据 主要作为DataBinding 视图绑定的对象
-	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示</p>
+<p>一个App的本质就是数据，就是对于数据的构造、存储、展示。</p>
+
+<p>Express 中，数据被切分外两类：EventData，UIData</p>
+
+<p>EventData:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>不可视数据 主要作为EventBus 传递的对象
+
+侧重于合理的构造 服务于 Api接口 以及 本地数据库
+
+其中:
+
+	Entity 作为表结构存在，只有对应的Dao才能接触到。
+	
+	RequestData 作为Model的入口， 只有Model才能订阅
+</code></pre>
+</div>
+
+<p>UIData:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>可视数据 主要作为DataBinding 视图绑定的对象
+
+侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示
+</code></pre>
+</div>
 
 <p>#逻辑</p>
 

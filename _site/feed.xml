@@ -6,9 +6,62 @@
 </description>
     <link>http://example.com/</link>
     <atom:link href="http://example.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 01 Mar 2017 17:56:59 +0800</pubDate>
-    <lastBuildDate>Wed, 01 Mar 2017 17:56:59 +0800</lastBuildDate>
+    <pubDate>Thu, 06 Apr 2017 17:32:10 +0800</pubDate>
+    <lastBuildDate>Thu, 06 Apr 2017 17:32:10 +0800</lastBuildDate>
     <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>基于SQLite 支持多主键 支持外键 的自定义数据库框架 NHDB</title>
+        <description>&lt;p&gt;背景
+1.新项目需要支持多主键 外键 回滚 自动补丁，之前的第三方框架无法满足需求。
+2.NHDB 是基于SQLite，利用java 反射机制 和 注解 封装的简易版DB框架，目前支持 
+	a)多主键（大于等于1）
+	b)外键 (仅再插入时判断，如 指定表中不存该外键 抛出 异常)
+	c)自动补丁（针对数据库版本号维护）
+	d)回滚 （利用 SQLite的事务 机制）&lt;/p&gt;
+
+&lt;p&gt;使用&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;构造表 用法同 之前的框架，使用注解
+ a) 表注解 NHDBTable
+     String tableName() default “” 表名
+ b) 字段注解 NHDBField
+     String columnName() default “” 字段名 		boolean primaryKey() default false 是否主键 		boolean foreignKey() default false 是否 外键 		boolean canBeNull() default true 是否可以为空 		String references() default “” 外键表名
+ c) 更新补丁注解 –只支持增加字段，不支持修改字段名
+     int dbVersion() default 0 指定数据库版本号 只要该版本号大于旧版本号 就增加该字段&lt;/li&gt;
+  &lt;li&gt;NHDBHelper
+ a) init 
+     在Application 的 onCreate 中初始化 NHDBHelper.init(this);
+ b) onCreate
+     在数据库创建时 创建表 db.execSQL(TableUtil.createTable(TestEntity.class));
+ c) onUpgrade
+     在数据库版本号更新时 更新表 		updateTable(db,TableUtil.updateTable(TestEntity.class,oldVersion));
+     或者 建新表
+ – TestEntity 为有对应注解的 类&lt;/li&gt;
+  &lt;li&gt;Dao
+ 提供 5个静态方法 
+     a)insert 插入
+     b)delete 删除
+     c)update 修改
+     d)find 查找单个
+     e)findAll 查找全部
+     参数分为2种
+         - 实体 需要保证 主键完整
+         - 类表 仅针对 查找全部
+     如果需要其他的操作 请在你的Dao中自行添加&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/fanshidong1993/NHDBDemo&quot;&gt;传送门&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 06 Apr 2017 17:00:22 +0800</pubDate>
+        <link>http://example.com/db/2017/04/06/NHDB.html</link>
+        <guid isPermaLink="true">http://example.com/db/2017/04/06/NHDB.html</guid>
+        
+        
+        <category>DB</category>
+        
+      </item>
     
       <item>
         <title>Express 【快递】 Android 开发框架</title>
@@ -18,15 +71,19 @@
 
 &lt;p&gt;#背景&lt;/p&gt;
 
-&lt;p&gt;公司的接口申请制度，导致了调试接口总是在编辑页面之后
-前期的MVP使用不当导致代码臃肿
-故而再实际开发和应用中，总结出了现在的Express&lt;/p&gt;
+&lt;p&gt;公司的接口申请制度，导致了调试接口总是在编辑页面之后&lt;/p&gt;
+
+&lt;p&gt;前期的MVP使用不当导致代码臃肿&lt;/p&gt;
+
+&lt;p&gt;故而再实际开发和应用中，总结出了现在的Express&lt;/p&gt;
 
 &lt;p&gt;#特点&lt;/p&gt;
 
-&lt;p&gt;高内聚 视图、逻辑、数据 分离
-低耦合 利用EventBus的特性实现解耦
-高效展示数据 XML+DataBinding&lt;/p&gt;
+&lt;p&gt;高内聚 视图、逻辑、数据 分离&lt;/p&gt;
+
+&lt;p&gt;低耦合 利用EventBus的特性实现解耦&lt;/p&gt;
+
+&lt;p&gt;高效展示数据 XML+DataBinding&lt;/p&gt;
 
 &lt;p&gt;#名词解释&lt;/p&gt;
 
@@ -34,21 +91,30 @@
 
 &lt;p&gt;##EventBus&lt;/p&gt;
 
-&lt;p&gt;EventBus 的作用是在类之间传递数据，是Express的灵魂所在。
-我用一个比喻来介绍 EventBus的工作原理：
-我把每一个类比做 用户。
-把每一个EventBus的实体比做 邮差。
-把每一条数据比做 刊物。
-首先 我们要创建一个邮差 EventBus expresser = new EventBus();
-第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD
-第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD
-第四 我们要明确 那些用户 订阅了哪些刊物 
-		ClassA Subscribe DataB,DataD
-		ClassB Subscribe DataC,DataA
-		ClassC Subscribe DataA
-		ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如&lt;/p&gt;
+&lt;p&gt;EventBus 的作用是在类之间传递数据，是Express的灵魂所在。&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	``` java
+&lt;p&gt;我用一个比喻来介绍 EventBus的工作原理：&lt;/p&gt;
+
+&lt;p&gt;我把每一个类比做 用户。&lt;/p&gt;
+
+&lt;p&gt;把每一个EventBus的实体比做 邮差。&lt;/p&gt;
+
+&lt;p&gt;把每一条数据比做 刊物。&lt;/p&gt;
+
+&lt;p&gt;首先 我们要创建一个邮差 EventBus expresser = new EventBus();&lt;/p&gt;
+
+&lt;p&gt;第二 我们要明确有若干个用户 ClassA ， ClassB， ClassC， ClassD&lt;/p&gt;
+
+&lt;p&gt;第三 我们要明确有若干本刊物 DataA，DataB，DataC，DataD&lt;/p&gt;
+
+&lt;p&gt;第四 我们要明确 那些用户 订阅了哪些刊物&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	ClassA Subscribe DataB,DataD
+	ClassB Subscribe DataC,DataA
+	ClassC Subscribe DataA
+	ClassD Subscribe NONE			所谓订阅，就是编写一个 公共的方法 该方法的参数只有一个就是 DataX，方法加一个订阅标记即可如
+	
+	``` java
 	class ClassA{
 		@Subscribe
 		public void onEvent(DataB datab){
@@ -63,16 +129,22 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;第五 我们要让邮差明确 他要给谁送刊物
-		expresser.regist(ClassA)
-		expresser.regist(ClassB)
-		expresser.regist(ClassC)
-		ClassD 不用注册，因为他没有订阅
-		注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低&lt;/p&gt;
+&lt;p&gt;第五 我们要让邮差明确 他要给谁送刊物&lt;/p&gt;
 
-&lt;p&gt;第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以
-		expresser.post(DataX)
-		把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	expresser.regist(ClassA)
+	expresser.regist(ClassB)
+	expresser.regist(ClassC)
+	ClassD 不用注册，因为他没有订阅
+	注意:当类被销毁的时候，不要忘记反注册 expresser.unregist(ClassX) 不然 邮差效率会变低
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;第六 明确以上内容后，在任何地方， 注意！是任何地方。无论在哪个类，哪个方法都可以&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	expresser.post(DataX)
+	把数据投递给邮差，邮差就能准确的把数据投递到注册过expresser并订阅了该数据的类方法中。
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;##Databinding&lt;/p&gt;
 
@@ -97,17 +169,31 @@
 
 &lt;p&gt;#数据&lt;/p&gt;
 
-&lt;p&gt;一个App的本质就是数据，就是对于数据的构造、存储、展示。
-Express 中，数据被切分外两类：EventData，UIData
-EventData:
-	不可视数据 主要作为EventBus 传递的对象
-	侧重于合理的构造 服务于 Api接口 以及 本地数据库
-	其中:
-		Entity 作为表结构存在，只有对应的Dao才能接触到。
-		RequestData 作为Model的入口， 只有Model才能订阅
-UIData:
-	可视数据 主要作为DataBinding 视图绑定的对象
-	侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示&lt;/p&gt;
+&lt;p&gt;一个App的本质就是数据，就是对于数据的构造、存储、展示。&lt;/p&gt;
+
+&lt;p&gt;Express 中，数据被切分外两类：EventData，UIData&lt;/p&gt;
+
+&lt;p&gt;EventData:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;不可视数据 主要作为EventBus 传递的对象
+
+侧重于合理的构造 服务于 Api接口 以及 本地数据库
+
+其中:
+
+	Entity 作为表结构存在，只有对应的Dao才能接触到。
+	
+	RequestData 作为Model的入口， 只有Model才能订阅
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;UIData:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;可视数据 主要作为DataBinding 视图绑定的对象
+
+侧重于合理的展示 服务于 DataBinding， 其中get方法的返回类型大都为String，便于视图展示
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
 &lt;p&gt;#逻辑&lt;/p&gt;
 
