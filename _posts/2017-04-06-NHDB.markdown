@@ -6,41 +6,81 @@ categories: DB
 ---
 
 背景
+
 1.新项目需要支持多主键 外键 回滚 自动补丁，之前的第三方框架无法满足需求。
+
 2.NHDB 是基于SQLite，利用java 反射机制 和 注解 封装的简易版DB框架，目前支持 
+
 	a)多主键（大于等于1）
+	
 	b)外键 (仅再插入时判断，如 指定表中不存该外键 抛出 异常)
+	
 	c)自动补丁（针对数据库版本号维护）
+	
 	d)回滚 （利用 SQLite的事务 机制）
+	
 
 使用
+
 1. 构造表 用法同 之前的框架，使用注解
+
 	a) 表注解 NHDBTable
+	
 		String tableName() default "" 表名
+		
 	b) 字段注解 NHDBField
-		String columnName() default "" 字段名 		boolean primaryKey() default false 是否主键 		boolean foreignKey() default false 是否 外键 		boolean canBeNull() default true 是否可以为空 		String references() default "" 外键表名
+	
+		String columnName() default "" 字段名
+		 		boolean primaryKey() default false 是否主键
+		 		boolean foreignKey() default false 是否 外键
+		 		boolean canBeNull() default true 是否可以为空
+		 		String references() default "" 外键表名
+		
 	c) 更新补丁注解 --只支持增加字段，不支持修改字段名
+	
 		int dbVersion() default 0 指定数据库版本号 只要该版本号大于旧版本号 就增加该字段
+		
 2. NHDBHelper
+
 	a) init 
+	
 		在Application 的 onCreate 中初始化 NHDBHelper.init(this);
+		
 	b) onCreate
+	
 		在数据库创建时 创建表 db.execSQL(TableUtil.createTable(TestEntity.class));
+		
 	c) onUpgrade
-		在数据库版本号更新时 更新表 		updateTable(db,TableUtil.updateTable(TestEntity.class,oldVersion));
+	
+		在数据库版本号更新时 更新表 
+		
+				updateTable(db,TableUtil.updateTable(TestEntity.class,oldVersion));
+				
 		或者 建新表
+		
 	-- TestEntity 为有对应注解的 类
+	
 3. Dao
+
 	提供 5个静态方法 
+	
 		a)insert 插入
+		
 		b)delete 删除
+		
 		c)update 修改
+		
 		d)find 查找单个
+		
 		e)findAll 查找全部
+		
 		参数分为2种
-			- 实体 需要保证 主键完整
+		
+			- 实体 需要保证 主键完
+			
 			- 类表 仅针对 查找全部
-		如果需要其他的操作 请在你的Dao中自行添加
+			
+		如果需要其他的操作 请在你的Dao中自行添
 
 [传送门](https://github.com/fanshidong1993/NHDBDemo)
 		
