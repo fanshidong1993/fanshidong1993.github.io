@@ -7,37 +7,37 @@ categories: 应用,健壮,流畅
 
 ## 前言
 
-	之前有提过，一个应用可以理解为"数据的展示、操作和存储"要构建一个健壮流畅的应用就需要对这3点做较好的处理，理解这三点也可以做出更好更合理的设计。
+之前有提过，一个应用可以理解为"数据的展示、操作和存储"要构建一个健壮流畅的应用就需要对这3点做较好的处理，理解这三点也可以做出更好更合理的设计。
 	
 ## 数据的展示
 	
-	在拿到UI之后，要考虑如何布局各元素。合理的布局可以大大提高UI性能。
+在拿到UI之后，要考虑如何布局各元素。合理的布局可以大大提高UI性能。
 	
 ![](https://raw.githubusercontent.com/fanshidong1993/RES/master/layout.png)
 
-	上图是一个较复杂的布局，每个UI布局都可以理解为一棵树，树的节点越深，UI性能就越差。
-	如果我们要刷新其中一个TextView，我们要从根节点到3次，Root-LinearLayout-LinearLayout-TextView。
-	但是我们换一下布局。
+上图是一个较复杂的布局，每个UI布局都可以理解为一棵树，树的节点越深，UI性能就越差。
+如果我们要刷新其中一个TextView，我们要从根节点到3次，Root-LinearLayout-LinearLayout-TextView。
+但是我们换一下布局。
 	
 ![](https://raw.githubusercontent.com/fanshidong1993/RES/master/ConstraintLayout.png)
 
-	换了ConstraintLayout之后，由于每个元素都是平行的，树节点很浅，UI性能也得到了提高，找到一个TextView，只要2步，Root-ConstraintLayout-TextView。
-	上诉两个布局，可以理解为看起来一样但是性能不一样的两个例子，目的是介绍ConstraintLayout可以帮助我提高UI性能。
-	ConstrainLayout是类似RelativeLayout但是比它强大的布局，可以通过超链接上的文档进行更好的学习，这里只介绍一些基本的用法，但是能处理大部分情况。
+换了ConstraintLayout之后，由于每个元素都是平行的，树节点很浅，UI性能也得到了提高，找到一个TextView，只要2步，Root-ConstraintLayout-TextView。
+上诉两个布局，可以理解为看起来一样但是性能不一样的两个例子，目的是介绍ConstraintLayout可以帮助我提高UI性能。
+ConstrainLayout是类似RelativeLayout但是比它强大的布局，可以通过超链接上的文档进行更好的学习，这里只介绍一些基本的用法，但是能处理大部分情况。
 	
 [ConstraintLayout 在google.cn 上的文档](https://developer.android.google.cn/reference/android/support/constraint/ConstraintLayout.html)
 	
-	顺便提一下 https://developers.google.cn 是谷歌爸爸为了照顾被墙的中国开发者特别做的一个中国版开发者平台，其中 developer.android.google.cn 是android开发者平台，里面有很多有帮助的文档。
+顺便提一下 https://developers.google.cn 是谷歌爸爸为了照顾被墙的中国开发者特别做的一个中国版开发者平台，其中 developer.android.google.cn 是android开发者平台，里面有很多有帮助的文档。
 	
 ### ConstraintLayout
 
-	app:layout_constraintX_toYOf="@+id/viewId"
-	这句是ConstraintLayout的核心，它的命名空间是app。这是对当前View的约束描述，本身Constraint就是约束的意思。可以理解为这个布局内所有的View都是根据彼此的位置来进行分布的。
-	把其中的X，Y替换为 Top、Right、Bottom、Left即是正确的约束表达。
-	比如app:layout_constraintBottom_toTopOf="@+id/viewId"的意思就是，当前View的底部和viewId的顶部对齐。所以任意两个View可以有16种不同的关系，已经可以满足绝大多数的情况了。你还可以把@+id/viewId 替换为parent即当前View在父布局中的位置。
+app:layout_constraintX_toYOf="@+id/viewId"
+这句是ConstraintLayout的核心，它的命名空间是app。这是对当前View的约束描述，本身Constraint就是约束的意思。可以理解为这个布局内所有的View都是根据彼此的位置来进行分布的。
+把其中的X，Y替换为 Top、Right、Bottom、Left即是正确的约束表达。
+比如app:layout_constraintBottom_toTopOf="@+id/viewId"的意思就是，当前View的底部和viewId的顶部对齐。所以任意两个View可以有16种不同的关系，已经可以满足绝大多数的情况了。你还可以把@+id/viewId 替换为parent即当前View在父布局中的位置。
 	
-	Guideline
-	这是对齐线，在ConstraintLayout是一种看不见的View
+Guideline
+这是对齐线，在ConstraintLayout是一种看不见的View
 	
 ```
 <android.support.constraint.Guideline
@@ -49,32 +49,32 @@ categories: 应用,健壮,流畅
 
 ```
 
-	orientation 代表对齐线的水平(horizontal)或垂直方向(vertical)
-	layout_constraintGuide_percent 代表对齐线在ConstraintLayout中对应方向的百分比位置
-	(一般我建议使用这个属性而不是固定距离，如果你一定要用也可以使用layout_constraintGuide_begin来设置固定距离)
-	再配合layout_constraintX_toYOf，可以把你的View按百分比显示在布局中。
+orientation 代表对齐线的水平(horizontal)或垂直方向(vertical)
+layout_constraintGuide_percent 代表对齐线在ConstraintLayout中对应方向的百分比位置
+(一般我建议使用这个属性而不是固定距离，如果你一定要用也可以使用layout_constraintGuide_begin来设置固定距离)
+再配合layout_constraintX_toYOf，可以把你的View按百分比显示在布局中。
 	
-	以上，对ConstraintLayout的介绍只是冰山一角，但是我觉得已经可以解决大部分问题了。
+以上，对ConstraintLayout的介绍只是冰山一角，但是我觉得已经可以解决大部分问题了。
 	
 ## 数据的操作
 
-	我们通常通过用户点击屏幕来获得一些事件来操作数据并展示，比如用户在Home页点开了APP，我们在APP的MainActivity的OnCreate/onStart 等方法中的到了事件，并通过本地数据库或远程数据库(API)来获取数据并进行适当的操作处理来展示在UI中。
-	问题是，手机加载我们的XML即UI视图的速度要远快于我们获取数据的速度。再使用ConstraintLayout后，这种差距就会拉得更大了。如果在获取数据的过程中，对于Activity的生命周期处理的不好，会给用户带来强烈的卡顿感甚至崩溃。
-	异步，是用来处理这种问题的非常好的办法。但是于此同时，我们要了解“异步”可能会带来的问题。并为之做好准备。
+我们通常通过用户点击屏幕来获得一些事件来操作数据并展示，比如用户在Home页点开了APP，我们在APP的MainActivity的OnCreate/onStart 等方法中的到了事件，并通过本地数据库或远程数据库(API)来获取数据并进行适当的操作处理来展示在UI中。
+问题是，手机加载我们的XML即UI视图的速度要远快于我们获取数据的速度。再使用ConstraintLayout后，这种差距就会拉得更大了。如果在获取数据的过程中，对于Activity的生命周期处理的不好，会给用户带来强烈的卡顿感甚至崩溃。
+异步，是用来处理这种问题的非常好的办法。但是于此同时，我们要了解“异步”可能会带来的问题。并为之做好准备。
 	
 ### 异步与生命周期
 
-	异步，请求网络数据后在UI中展示。这个步骤看起来非常合理正确。但是我们要明白一个道理，异步，即代表和UI线程脱离，它是一个独立的线程。他什么时候结束我们无法控制。不单纯是网络请求，所有的异步都是这样的。正常情况下，可能这个异步操作结束的很快，但也可能结束的很慢。如果网络请求结束并回调的时候，我们的Activity已经结束了他的生命周期。这个时候，代码并不知道，他还是会去执行刷新UI的操作。所有要异步的同时，我们还要兼顾生命周期。
-	这个问题的解决方案很多，这里介绍一种Google开发的方案：LiveData，ViewModel
+异步，请求网络数据后在UI中展示。这个步骤看起来非常合理正确。但是我们要明白一个道理，异步，即代表和UI线程脱离，它是一个独立的线程。他什么时候结束我们无法控制。不单纯是网络请求，所有的异步都是这样的。正常情况下，可能这个异步操作结束的很快，但也可能结束的很慢。如果网络请求结束并回调的时候，我们的Activity已经结束了他的生命周期。这个时候，代码并不知道，他还是会去执行刷新UI的操作。所有要异步的同时，我们还要兼顾生命周期。
+这个问题的解决方案很多，这里介绍一种Google开发的方案：LiveData，ViewModel
 	
-	介绍LiveData之前，先提一下Livecycle。它帮助LiveData把握Activity/Fragment的生命周期，你甚至可以利用它再脱离Activity的情况下，定义好生命周期内要做的一些事情。
+介绍LiveData之前，先提一下Livecycle。它帮助LiveData把握Activity/Fragment的生命周期，你甚至可以利用它再脱离Activity的情况下，定义好生命周期内要做的一些事情。
 
 [Lifecycle在google.cn的文档](https://developer.android.google.cn/reference/android/arch/lifecycle/Lifecycle.html)
 
-	ViewModel的设计是用来帮助Activity/Fragment处理数据的。同时，它也被用来创建Livecycle，持有LiveData实例，处理数据等。
-	observer(Livecycle，onChanged)是LiveData的观察者方法，用来设置对应的生命周期和回调接口。
-	如果LiveData中存储的数据发生了变化，观察者中的onChanged方法就会被调用，以此来刷新UI。而如果Livecycle告诉LiveData，我的生命周期已经结束了，onChanged就不会被调用。
-	下面来看一个简单的例子
+ViewModel的设计是用来帮助Activity/Fragment处理数据的。同时，它也被用来创建Livecycle，持有LiveData实例，处理数据等。
+observer(Livecycle，onChanged)是LiveData的观察者方法，用来设置对应的生命周期和回调接口。
+如果LiveData中存储的数据发生了变化，观察者中的onChanged方法就会被调用，以此来刷新UI。而如果Livecycle告诉LiveData，我的生命周期已经结束了，onChanged就不会被调用。
+下面来看一个简单的例子
 	
 ```
  public class UserActivity extends Activity {
@@ -118,26 +118,26 @@ categories: 应用,健壮,流畅
  }
 ```
 
-	MutableLiveData 其实就是LiveData，MutableLiveData是可一手动Post改变值的，而LiveData更多的是和MutableLiveData或Room配合，来更新数据。
-	Room是Google开发的和LiveData可以配套的数据库解决方案。后面的篇幅会做介绍。
+MutableLiveData 其实就是LiveData，MutableLiveData是可一手动Post改变值的，而LiveData更多的是和MutableLiveData或Room配合，来更新数据。
+Room是Google开发的和LiveData可以配套的数据库解决方案。后面的篇幅会做介绍。
 	
 ### 异步与异步
 
-	要避免同等级异步线程之间的通信。即使是你很自信的逻辑，涉及到同等级异步线程通信，还是会出现结果不可控的状况。
-	不同线程在使用同一个函数或者实例的时候，线程不安全的问题也要引起重视，这可能是你的程序发布后的定时炸弹。
+要避免同等级异步线程之间的通信。即使是你很自信的逻辑，涉及到同等级异步线程通信，还是会出现结果不可控的状况。
+不同线程在使用同一个函数或者实例的时候，线程不安全的问题也要引起重视，这可能是你的程序发布后的定时炸弹。
 	
 ### 异步与分页PagedList
 
-	我们在使用RecycleView显示列表的时候，刷新和分页加载，会带来大量的性能浪费。比如，我们通过接口得到了一个列表的数据，size=20。往往我们会选择给adapter赋值这个列表后，直接刷新这个adapter。但往往这20条数据和刷新之前一摸一样。
-	还有就是在分页加载的时候，我们往往是在列表拉到最底端的时候，通过Footer去加载更多的列表。但其实这样的处理一点都不流畅，用户是要等待的。
-	PagedList 可以只刷新更新或新增的元素，还可以使得分页加载更加的流畅。大大节省了性能提高了流畅度。
-	注意如果使用PagedList，对应的RecycleView外必须包裹SwipeRefreshLayout或者NestedScrollView。
+我们在使用RecycleView显示列表的时候，刷新和分页加载，会带来大量的性能浪费。比如，我们通过接口得到了一个列表的数据，size=20。往往我们会选择给adapter赋值这个列表后，直接刷新这个adapter。但往往这20条数据和刷新之前一摸一样。
+还有就是在分页加载的时候，我们往往是在列表拉到最底端的时候，通过Footer去加载更多的列表。但其实这样的处理一点都不流畅，用户是要等待的。
+PagedList 可以只刷新更新或新增的元素，还可以使得分页加载更加的流畅。大大节省了性能提高了流畅度。
+注意如果使用PagedList，对应的RecycleView外必须包裹SwipeRefreshLayout或者NestedScrollView。
 	
 ![](https://developer.android.google.cn/images/topic/libraries/architecture/paging-threading.gif)
 
-	上图介绍了PagedList是如何只更新部分元素的。
+上图介绍了PagedList是如何只更新部分元素的。
 	
-	至于分页，PagedList需要设置一个PageSize，来作为单页的大小。初始化时，它会直接加载3*PageSize大小的数据，当数据滚动到倒数第PageSize个元素的时候，就会去加载下一页。这样始终有一页的数据作为缓冲，来达到流畅分页的目的，但如果用户下滑的速度大于网络加载的速度的话，还是会出现不流畅，卡顿等待的情况，所以这个PageSzie的大小是关键，大小必须合适。一般我会使用20。
+至于分页，PagedList需要设置一个PageSize，来作为单页的大小。初始化时，它会直接加载3*PageSize大小的数据，当数据滚动到倒数第PageSize个元素的时候，就会去加载下一页。这样始终有一页的数据作为缓冲，来达到流畅分页的目的，但如果用户下滑的速度大于网络加载的速度的话，还是会出现不流畅，卡顿等待的情况，所以这个PageSzie的大小是关键，大小必须合适。一般我会使用20。
 	
 [PagedList google.cn的文档](https://developer.android.google.cn/reference/android/arch/paging/PagedList.html)
 
