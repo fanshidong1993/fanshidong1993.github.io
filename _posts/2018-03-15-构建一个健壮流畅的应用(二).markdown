@@ -1,0 +1,168 @@
+---
+layout: post
+title:  "构建一个健壮流畅的应用(二)"
+date:   2018-03-15 19:00:01 +0800
+categories: 应用,健壮,流畅
+---
+
+## 前言
+
+本篇主要介绍LiveData+PagedList 如何流畅的操作数据
+	
+## DataSource
+
+DataSource 是PagedList的数据源，在上篇文末的一张动图有提到。它是PagedList的灵魂。
+这里我们用到PageKeyedDataSource<Key,Value>它是DataSource的一个子类，看命名就知道，它是为PagedList封装的一个DataSource类。
+这里的key，value是两个类型。
+我们一般把key定义为Int，几乎所有的列表，分页，都是用Int来标记位置的，当然你可以使用其他任何你需要的类型。
+value便是我们需要在列表的单元内显示数据的载体类。
+PageKeyedDataSource  是一个抽象类，继承它要实现3个方法。
+
+```
+class XXXDataSource(
+        ···
+        )
+    : PageKeyedDataSource<Int, DataClass>() {
+
+    override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, DataClass>) {
+		···
+    }
+
+    override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, DataClass>) {
+      ··· 
+    }
+
+    override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, DataClass>) {
+    	···　    
+    }
+
+}
+
+```
+
+3个方法，看命名就很清楚作用，依次是 加载开始前/加载开始后/加载初始化。
+在loadBefore 你可以做一些事情为loadInitial做准备。而重点就是loadInitial和loadAfter。
+我们知道列表的分页是一次加载若干个数据（loadInitial），当列表拉到底之后，便会再加载下一页（loadAfter）。
+然后我们来了解这些方法中的参数，LoadInitialParams
+,LoadParams，LoadInitialCallback，以及LoadCallback
+
+```
+@SuppressWarnings("WeakerAccess")
+public static class LoadInitialParams<Key> {
+    //请求页的大小
+    public final int requestedLoadSize;
+	 //占位符是否可用，这个是PagedList的旧版参数，我们现在讨论的PagedList不会用到，可以忽略。
+    public final boolean placeholdersEnabled;
+
+    LoadInitialParams(int requestedLoadSize,
+            boolean placeholdersEnabled) {
+        this.requestedLoadSize = requestedLoadSize;
+        this.placeholdersEnabled = placeholdersEnabled;
+    }
+}
+
+@SuppressWarnings("WeakerAccess")
+public static class LoadParams<Key> {
+    //关键字，可以理解为分页的页数或起始位置，看接口的定义
+    public final Key key;
+
+    //页大小，即一页的数量
+    public final int requestedLoadSize;
+
+    LoadParams(Key key, int requestedLoadSize) {
+        this.key = key;
+        this.requestedLoadSize = requestedLoadSize;
+    }
+}
+```
+
+LoadInitialParams 可以认为只有一个 requestedLoadSize 的参数，它告诉你第一页的大小。
+上一篇我们提到PageSize，这个requestedLoadSize 的值便是 PageSize*3。
+而执行下一页加载的条件是，假设当前列表有X个单元，当前单元的位置 小于 X-PageSize 的话，便调用loadAfter，加载下一页。
+
+对于LoadInitialCallback 和 LoadCallback ，我们需要了解的就是他们的 onResult 方法。
+
+```
+//LoadInitialCallback
+// previousPageKey 前一个key 一般填 null
+// nextPageKey 下一个key
+callback.onResult( list , previousPageKey , nextPageKey )
+
+//LoadCallback
+//adjacentPageKey 意为附近的key 但是在 PageKeyedDataSource 中
+//可以理解为 下一个key
+callback.onResult( list , adjacentPageKey )
+```
+
+callBack 主要是回调 一个list来返回当前页的结果给pagedList，同时维护下一个关键字。
+这里，无论你是查询数据库还是请求网络API，得到结果后调用CallBack即可完成DataSource的作用。
+
+## DataSourceFactory 与 LivePagedListBuilder
+
+本篇介绍的是LiveData+PagedList，这里Google爸爸又封装了一个类来更好的支持它：LivePagedListBuilder
+而这个builder构造函数接收不是DataSource 而是它的工厂接口 DataSource.Factory<Key,Value>
+
+```
+public interface Factory<Key, Value> {
+    //只要实现一个create方法，在改方法中初始化我们定义的DataSource并返回即可。
+    DataSource<Key, Value> create();
+}
+```
+
+而 LiveData< PagedList< Value > > 的构造就要依靠 LivePagedListBuilder 方法如下
+
+```
+val livePagedList: LiveData<PagedList<Value>>
+livePagedList = LivePagedListBuilder( sourceFactory , pageSize ).build()
+```
+
+接下来我们只需要观察livePagedList 即可。
+
+```
+viewModel.livePagedList.observe(this,Observer{
+	//得到变化后的PagedList并处理
+})
+```
+
+## PagedListAdapter<Value, VH extends RecyclerView.ViewHolder>
+
+处理PagedList很简单，就是把PagedList传递给PagedListAdapter即可，PagedListAdapter有一个方法叫 setList，接收的就是PagedList。
+
+PagedListAdapter继承自RecyclerView.Adapter使用也和它一致。只是构造函数多了一个参数
+diffCallback, 也就是上一篇的末尾动图提到的diffUtil，用来区分两个Value是否一致或相同的。
+
+```
+val DIFF_CALLBACK: DiffCallback<Value> = object : DiffCallback<Value>() {
+    override fun areContentsTheSame(oldItem: Value, newItem: Value): Boolean {
+        return oldItem.id == newItem.id//判断两个单元是否为同一个单元
+    }
+
+    override fun areItemsTheSame(oldItem: AdjustPriceItem, newItem: AdjustPriceItem): Boolean {
+        return oldItem == newItem //判断两个单元是否内容，ID 均一致。
+    }
+}
+```
+
+构造Adapter的时候，只需要传入这个DIFF_CALLBACK即可。
+观察者的写法就明显了。
+
+```
+class XXAdapter: PagedListAdapter<Value,ViewHolder>(DIFF_CALLBACK)
+···
+val adapter = XXAdapter()
+···
+viewModel.livePagedList.observe(this,Observer{
+	adapter.setList(it)
+})
+
+```
+
+LiveData + PagedList 可以流畅高效的处理列表的分页。
+
+其中，ROOM的数据库查询直接支持了LiveData和DataSource.Factory两种类型的返回。
+ROOM的使用以及ROOM和其他组件的combo将在下一篇文章详细介绍。
+
+
+
+
+
